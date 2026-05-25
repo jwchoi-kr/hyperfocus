@@ -51,7 +51,7 @@ struct TimerControls: View {
 
     private var secondaryButtons: some View {
         HStack(spacing: 10) {
-            Button("End") { timerStore.resetTotal() }
+            Button("End") { timerStore.endDay() }
                 .buttonStyle(.bordered)
                 .tint(.red)
                 .frame(maxWidth: .infinity)

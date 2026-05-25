@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct CurrentCycleCardView: View {
+struct CurrentDayCardView: View {
     @Environment(TimerStore.self) private var timerStore
     @Environment(StatisticsStore.self) private var statsStore
 
@@ -12,18 +12,18 @@ struct CurrentCycleCardView: View {
 
     var body: some View {
         let aggregated = statsStore.aggregatedSessionsIncluding(
-            cycle: timerStore.currentCycle,
+            day: timerStore.currentDay,
             active: timerStore.activeSession
         )
         let totalDuration = timerStore.totalDuration
 
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text("현재 주기")
+                Text("오늘")
                     .font(.caption.bold())
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text("\(Self.dateFormatter.string(from: timerStore.currentCycle.startedAt)) 시작")
+                Text("\(Self.dateFormatter.string(from: timerStore.currentDay.startedAt)) 시작")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }

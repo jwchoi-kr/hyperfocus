@@ -3,35 +3,35 @@ import XCTest
 
 final class AverageCalculationTests: XCTestCase {
 
-    private func makeCycle(duration: TimeInterval) -> Cycle {
-        var c = Cycle()
-        c.sessions = [Session(name: "test", duration: duration)]
-        c.endedAt = Date()
-        return c
+    private func makeDay(duration: TimeInterval) -> Day {
+        var d = Day()
+        d.sessions = [Session(name: "test", duration: duration)]
+        d.endedAt = Date()
+        return d
     }
 
-    func test_recentAverage_noPastCycles_returnsNil() {
-        let store = StatisticsStore(pastCycles: [])
+    func test_recentAverage_noPastDays_returnsNil() {
+        let store = StatisticsStore(pastDays: [])
         XCTAssertNil(store.recentAverage())
     }
 
-    func test_recentAverage_threeCycles_correctAverage() {
-        let cycles = [
-            makeCycle(duration: 3600),
-            makeCycle(duration: 7200),
-            makeCycle(duration: 5400),
+    func test_recentAverage_threeDays_correctAverage() {
+        let days = [
+            makeDay(duration: 3600),
+            makeDay(duration: 7200),
+            makeDay(duration: 5400),
         ]
-        let store = StatisticsStore(pastCycles: cycles)
+        let store = StatisticsStore(pastDays: days)
         let result = store.recentAverage()
         XCTAssertNotNil(result)
         XCTAssertEqual(result!.average, (3600 + 7200 + 5400) / 3, accuracy: 0.001)
         XCTAssertEqual(result!.sampleSize, 3)
     }
 
-    func test_recentAverage_exactlySevenCycles() {
+    func test_recentAverage_exactlySevenDays() {
         let durations: [TimeInterval] = [1000, 2000, 3000, 4000, 5000, 6000, 7000]
-        let cycles = durations.map { makeCycle(duration: $0) }
-        let store = StatisticsStore(pastCycles: cycles)
+        let days = durations.map { makeDay(duration: $0) }
+        let store = StatisticsStore(pastDays: days)
         let result = store.recentAverage()
         XCTAssertNotNil(result)
         XCTAssertEqual(result!.sampleSize, 7)
@@ -39,10 +39,10 @@ final class AverageCalculationTests: XCTestCase {
         XCTAssertEqual(result!.average, expected, accuracy: 0.001)
     }
 
-    func test_recentAverage_moreThanSevenCycles_onlyUsesFirst7() {
+    func test_recentAverage_moreThanSevenDays_onlyUsesFirst7() {
         let durations: [TimeInterval] = [1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000]
-        let cycles = durations.map { makeCycle(duration: $0) }
-        let store = StatisticsStore(pastCycles: cycles)
+        let days = durations.map { makeDay(duration: $0) }
+        let store = StatisticsStore(pastDays: days)
         let result = store.recentAverage()
         XCTAssertNotNil(result)
         XCTAssertEqual(result!.sampleSize, 7)
@@ -51,28 +51,28 @@ final class AverageCalculationTests: XCTestCase {
         XCTAssertEqual(result!.average, expected, accuracy: 0.001)
     }
 
-    func test_appendClosedCycle_emptySkipped() {
+    func test_appendClosedDay_emptySkipped() {
         let store = StatisticsStore()
-        let emptyCycle = Cycle()
-        store.appendClosedCycle(emptyCycle)
-        XCTAssertTrue(store.pastCycles.isEmpty)
+        let emptyDay = Day()
+        store.appendClosedDay(emptyDay)
+        XCTAssertTrue(store.pastDays.isEmpty)
     }
 
-    func test_appendClosedCycle_nonEmptyAdded() {
+    func test_appendClosedDay_nonEmptyAdded() {
         let store = StatisticsStore()
-        let cycle = makeCycle(duration: 100)
-        store.appendClosedCycle(cycle)
-        XCTAssertEqual(store.pastCycles.count, 1)
+        let day = makeDay(duration: 100)
+        store.appendClosedDay(day)
+        XCTAssertEqual(store.pastDays.count, 1)
     }
 
-    func test_appendClosedCycle_mostRecentFirst() {
+    func test_appendClosedDay_mostRecentFirst() {
         let store = StatisticsStore()
-        let first = makeCycle(duration: 100)
-        let second = makeCycle(duration: 200)
-        store.appendClosedCycle(first)
-        store.appendClosedCycle(second)
+        let first = makeDay(duration: 100)
+        let second = makeDay(duration: 200)
+        store.appendClosedDay(first)
+        store.appendClosedDay(second)
         // Second appended is at index 0 (inserted at front)
-        XCTAssertEqual(store.pastCycles[0].sessions[0].duration, 200)
-        XCTAssertEqual(store.pastCycles[1].sessions[0].duration, 100)
+        XCTAssertEqual(store.pastDays[0].sessions[0].duration, 200)
+        XCTAssertEqual(store.pastDays[1].sessions[0].duration, 100)
     }
 }

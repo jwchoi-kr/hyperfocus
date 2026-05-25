@@ -5,36 +5,36 @@ private let logger = Logger(subsystem: "com.hyperfocus", category: "StatisticsSt
 
 @Observable
 final class StatisticsStore {
-    private(set) var pastCycles: [Cycle]
+    private(set) var pastDays: [Day]
 
-    init(pastCycles: [Cycle] = []) {
-        self.pastCycles = pastCycles
+    init(pastDays: [Day] = []) {
+        self.pastDays = pastDays
     }
 
-    func appendClosedCycle(_ cycle: Cycle) {
-        guard !cycle.isEmpty else {
-            logger.info("Skipping empty cycle")
+    func appendClosedDay(_ day: Day) {
+        guard !day.isEmpty else {
+            logger.info("Skipping empty day")
             return
         }
-        pastCycles.insert(cycle, at: 0)
-        logger.info("Past cycle added, total=\(self.pastCycles.count)")
+        pastDays.insert(day, at: 0)
+        logger.info("Past day added, total=\(self.pastDays.count)")
     }
 
-    /// Average duration of the most recent `count` past cycles (excluding current).
-    /// Returns nil when there are no past cycles.
+    /// Average duration of the most recent `count` past days (excluding current).
+    /// Returns nil when there are no past days.
     func recentAverage(count: Int = 7) -> (average: TimeInterval, sampleSize: Int)? {
-        guard !pastCycles.isEmpty else { return nil }
-        let sample = Array(pastCycles.prefix(count))
+        guard !pastDays.isEmpty else { return nil }
+        let sample = Array(pastDays.prefix(count))
         let total = sample.reduce(0.0) { $0 + $1.totalDuration }
         return (total / Double(sample.count), sample.count)
     }
 
-    func aggregatedSessions(of cycle: Cycle) -> [AggregatedSession] {
-        aggregateSessions(cycle.sessions)
+    func aggregatedSessions(of day: Day) -> [AggregatedSession] {
+        aggregateSessions(day.sessions)
     }
 
-    func aggregatedSessionsIncluding(cycle: Cycle, active: Session?) -> [AggregatedSession] {
-        var all = cycle.sessions
+    func aggregatedSessionsIncluding(day: Day, active: Session?) -> [AggregatedSession] {
+        var all = day.sessions
         if let active = active, active.duration > 0 {
             var copy = active
             copy.name = normalizedSessionName(active.name)

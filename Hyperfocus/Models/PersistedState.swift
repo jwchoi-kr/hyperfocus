@@ -2,19 +2,19 @@ import Foundation
 
 struct PersistedState: Codable {
     var schemaVersion: Int
-    var currentCycle: Cycle
-    var pastCycles: [Cycle]
+    var currentDay: Day
+    var pastDays: [Day]
     var activeSession: Session?
 
     init(
         schemaVersion: Int = 1,
-        currentCycle: Cycle = Cycle(),
-        pastCycles: [Cycle] = [],
+        currentDay: Day = Day(),
+        pastDays: [Day] = [],
         activeSession: Session? = nil
     ) {
         self.schemaVersion = schemaVersion
-        self.currentCycle = currentCycle
-        self.pastCycles = pastCycles
+        self.currentDay = currentDay
+        self.pastDays = pastDays
         self.activeSession = activeSession
     }
 }

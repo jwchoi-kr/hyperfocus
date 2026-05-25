@@ -1,7 +1,7 @@
 import SwiftUI
 
-struct PastCycleRowView: View {
-    let cycle: Cycle
+struct PastDayRowView: View {
+    let day: Day
     let onSelect: () -> Void
 
     private static let dateFormatter: DateFormatter = {
@@ -14,16 +14,16 @@ struct PastCycleRowView: View {
         Button(action: onSelect) {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(Self.dateFormatter.string(from: cycle.startedAt))
+                    Text(Self.dateFormatter.string(from: day.startedAt))
                         .font(.caption)
-                    if let ended = cycle.endedAt {
+                    if let ended = day.endedAt {
                         Text("→ \(Self.dateFormatter.string(from: ended))")
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
                 }
                 Spacer()
-                Text(formatHumanShort(cycle.totalDuration))
+                Text(formatHumanShort(day.totalDuration))
                     .font(.caption.monospacedDigit())
                 Image(systemName: "chevron.right")
                     .font(.caption2)

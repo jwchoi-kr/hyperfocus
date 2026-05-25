@@ -6,11 +6,11 @@ private let logger = Logger(subsystem: "com.hyperfocus", category: "TimerStore")
 
 @Observable
 final class TimerStore {
-    private(set) var currentCycle: Cycle
+    private(set) var currentDay: Day
     private(set) var activeSession: Session?
     private(set) var isRunning: Bool = false
 
-    var onCycleClosed: ((Cycle) -> Void)?
+    var onDayClosed: ((Day) -> Void)?
     var onStateChanged: (() -> Void)?
 
     private var lastTickAt: Date?
@@ -22,15 +22,15 @@ final class TimerStore {
     }
 
     var totalDuration: TimeInterval {
-        currentCycle.sessions.reduce(0) { $0 + $1.duration } + currentSessionDuration
+        currentDay.sessions.reduce(0) { $0 + $1.duration } + currentSessionDuration
     }
 
     init(
-        currentCycle: Cycle = Cycle(),
+        currentDay: Day = Day(),
         activeSession: Session? = nil,
         clock: ClockProtocol = SystemClock()
     ) {
-        self.currentCycle = currentCycle
+        self.currentDay = currentDay
         self.activeSession = activeSession
         self.clock = clock
     }
@@ -71,7 +71,7 @@ final class TimerStore {
         onStateChanged?()
     }
 
-    func resetTotal() {
+    func endDay() {
         commitActiveSessionIfNeeded()
 
         if isRunning {
@@ -79,21 +79,21 @@ final class TimerStore {
             isRunning = false
         }
 
-        var closed = currentCycle
+        var closed = currentDay
         closed.endedAt = clock.now
 
         if !closed.isEmpty {
-            onCycleClosed?(closed)
-            logger.info("Cycle closed: \(closed.sessions.count) sessions")
+            onDayClosed?(closed)
+            logger.info("Day closed: \(closed.sessions.count) sessions")
         } else {
-            logger.info("Empty cycle discarded on total reset")
+            logger.info("Empty day discarded on end")
         }
 
-        currentCycle = Cycle(startedAt: clock.now)
+        currentDay = Day(startedAt: clock.now)
         activeSession = nil
         lastTickAt = nil
 
-        logger.info("Total reset")
+        logger.info("Day ended")
         onStateChanged?()
     }
 
@@ -118,7 +118,7 @@ final class TimerStore {
         guard let session = activeSession, session.duration > 0 else { return }
         var toSave = session
         toSave.name = normalizedSessionName(session.name)
-        currentCycle.sessions.append(toSave)
+        currentDay.sessions.append(toSave)
         logger.info("Session committed: '\(toSave.name)' \(toSave.duration)s")
     }
 

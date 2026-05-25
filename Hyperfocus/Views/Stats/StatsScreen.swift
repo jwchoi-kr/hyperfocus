@@ -3,7 +3,7 @@ import SwiftUI
 struct StatsScreen: View {
     @Environment(StatisticsStore.self) private var statsStore
     let onBack: () -> Void
-    let onSelectCycle: (Cycle) -> Void
+    let onSelectDay: (Day) -> Void
 
     var body: some View {
         VStack(spacing: 0) {
@@ -32,14 +32,14 @@ struct StatsScreen: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
                     AverageSummaryView()
-                    CurrentCycleCardView()
+                    CurrentDayCardView()
 
-                    if !statsStore.pastCycles.isEmpty {
-                        Text("과거 주기")
+                    if !statsStore.pastDays.isEmpty {
+                        Text("지난 날")
                             .font(.caption)
                             .foregroundStyle(.secondary)
-                        ForEach(statsStore.pastCycles) { cycle in
-                            PastCycleRowView(cycle: cycle, onSelect: { onSelectCycle(cycle) })
+                        ForEach(statsStore.pastDays) { day in
+                            PastDayRowView(day: day, onSelect: { onSelectDay(day) })
                             Divider()
                         }
                     }

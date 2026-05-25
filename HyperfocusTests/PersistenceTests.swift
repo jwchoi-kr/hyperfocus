@@ -20,7 +20,7 @@ final class PersistenceTests: XCTestCase {
         let p = Persistence(fileURL: tempURL)
         let state = p.load()
         XCTAssertEqual(state.schemaVersion, 1)
-        XCTAssertTrue(state.pastCycles.isEmpty)
+        XCTAssertTrue(state.pastDays.isEmpty)
         XCTAssertNil(state.activeSession)
     }
 
@@ -32,29 +32,29 @@ final class PersistenceTests: XCTestCase {
         XCTAssertEqual(loaded.schemaVersion, 1)
     }
 
-    func test_roundTrip_preservesCurrentCycle() {
+    func test_roundTrip_preservesCurrentDay() {
         let p = Persistence(fileURL: tempURL)
-        let cycle = Cycle(sessions: [Session(name: "Test", duration: 100)])
-        let state = PersistedState(currentCycle: cycle)
+        let day = Day(sessions: [Session(name: "Test", duration: 100)])
+        let state = PersistedState(currentDay: day)
         p.saveNow(state)
         let loaded = p.load()
-        XCTAssertEqual(loaded.currentCycle.sessions.count, 1)
-        XCTAssertEqual(loaded.currentCycle.sessions[0].name, "Test")
-        XCTAssertEqual(loaded.currentCycle.sessions[0].duration, 100)
+        XCTAssertEqual(loaded.currentDay.sessions.count, 1)
+        XCTAssertEqual(loaded.currentDay.sessions[0].name, "Test")
+        XCTAssertEqual(loaded.currentDay.sessions[0].duration, 100)
     }
 
-    func test_roundTrip_preservesPastCycles() {
+    func test_roundTrip_preservesPastDays() {
         let p = Persistence(fileURL: tempURL)
-        let past = Cycle(
+        let past = Day(
             startedAt: Date(timeIntervalSinceReferenceDate: 0),
             endedAt: Date(timeIntervalSinceReferenceDate: 3600),
             sessions: [Session(name: "Past", duration: 200)]
         )
-        let state = PersistedState(pastCycles: [past])
+        let state = PersistedState(pastDays: [past])
         p.saveNow(state)
         let loaded = p.load()
-        XCTAssertEqual(loaded.pastCycles.count, 1)
-        XCTAssertEqual(loaded.pastCycles[0].sessions[0].name, "Past")
+        XCTAssertEqual(loaded.pastDays.count, 1)
+        XCTAssertEqual(loaded.pastDays[0].sessions[0].name, "Past")
     }
 
     func test_roundTrip_preservesActiveSession() {

@@ -1,7 +1,7 @@
 import SwiftUI
 
-struct CycleDetailView: View {
-    let cycle: Cycle
+struct DayDetailView: View {
+    let day: Day
     let onBack: () -> Void
 
     @Environment(StatisticsStore.self) private var statsStore
@@ -13,7 +13,7 @@ struct CycleDetailView: View {
     }()
 
     var body: some View {
-        let aggregated = statsStore.aggregatedSessions(of: cycle)
+        let aggregated = statsStore.aggregatedSessions(of: day)
 
         VStack(spacing: 0) {
             // Navigation bar
@@ -36,17 +36,17 @@ struct CycleDetailView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
-                    // Cycle header
+                    // Day header
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("\(Self.dateFormatter.string(from: cycle.startedAt)) 시작")
+                        Text("\(Self.dateFormatter.string(from: day.startedAt)) 시작")
                             .font(.caption)
                             .foregroundStyle(.secondary)
-                        if let ended = cycle.endedAt {
+                        if let ended = day.endedAt {
                             Text("\(Self.dateFormatter.string(from: ended)) 종료")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
-                        Text(formatHumanShort(cycle.totalDuration))
+                        Text(formatHumanShort(day.totalDuration))
                             .font(.title2.bold())
                     }
 
@@ -74,7 +74,7 @@ struct CycleDetailView: View {
                             Text("합계")
                                 .font(.body.bold())
                             Spacer()
-                            Text(formatHumanShort(cycle.totalDuration))
+                            Text(formatHumanShort(day.totalDuration))
                                 .font(.body.bold().monospacedDigit())
                         }
                     }

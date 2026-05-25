@@ -37,7 +37,7 @@
   - `.didWakeNotification` 구독 → 자동 재개 없음(SPEC §8.2), 새벽 6시 경계 초과 여부 확인 후 필요 시 자동 마감 수행 (SPEC §5.5)
 - 앱 실행 시 및 슬립에서 깨어날 때: 마지막 저장 하루 시작 시각과 현재 시각을 비교하여 자동 마감 여부 결정
 - 새벽 6시 타이머: 앱 실행 중에는 다음 새벽 6시 시각을 계산하여 `Timer`로 자동 마감 스케줄링. 마감 후 그 다음 6시로 재스케줄
-- **SwiftUI `.onKeyPress`** (macOS 14+) — Popover 컨테이너 레벨의 Space 키, TitleField의 Return 키 처리 (SPEC §3.2, §4.1)
+- **`NSEvent.addLocalMonitorForEvents`** — Popover 컨테이너 레벨의 Space 키 처리 (SPEC §3.2). SwiftUI `.onKeyPress`는 포커스 체인 의존성으로 idle/running 전환 시 신뢰성이 낮아 AppKit 이벤트 모니터를 사용함. TitleField의 Return 키는 SwiftUI `.onSubmit` 사용 (SPEC §4.1)
 
 ### 1.6 외부 의존성
 - **없음.** 표준 Apple 프레임워크(Swift, SwiftUI, AppKit, Foundation, Combine, Observation)만 사용
@@ -164,21 +164,22 @@ HyperfocusTests/
   - **idle**: `activeSession == nil, isRunning == false` → `Start` 버튼
   - **running**: `activeSession != nil, isRunning == true` → `Pause` + `Reset` 버튼
   - **paused**: `activeSession != nil, isRunning == false` → `Resume` + `Reset` 버튼
-- 액션: `start()`, `pause()`, `resetSession()`, `endDay()`, `updateActiveSessionTitle(_:)`
+- 액션: `start()`, `pause()`, `pauseForSleep()`, `resetSession()`, `endDay()`, `updateActiveSessionName(_:)`
   - `start()`: idle이면 새 세션 생성 후 시작, paused이면 기존 세션 이어서 시작
   - `resetSession()`: 현재 세션 종료(duration > 0이면 저장), 타이머 정지, `activeSession = nil` (idle 복귀)
-  - `endDay()`: 현재 하루 마감 + `StatisticsStore`에 push(빈 하루 제외) + 새 하루 시작. End 버튼과 자동 마감 양쪽에서 호출
-  - `checkAndPerformRollover()`: 현재 시각이 마지막 저장 하루의 새벽 6시 경계를 넘었으면 `endDay()` 호출. 앱 실행·wake 시점에 호출
-- 6시 타이머: `checkAndPerformRollover()` 호출 후 다음 새벽 6시 시각으로 `Timer`를 재스케줄
+  - `endDay()`: 현재 하루 마감 + `onDayClosed` 콜백으로 `StatisticsStore`에 전달(빈 하루 제외) + 새 하루 시작. End 버튼에서 호출
+  - `checkAndPerformRollover()`: 현재 시각이 마지막 저장 하루의 새벽 6시 경계를 넘었으면 `endDay()` 호출. 앱 실행·wake 시점에 호출 (미구현 — 향후 과제)
+- 6시 타이머: `checkAndPerformRollover()` 구현 후 다음 새벽 6시 시각으로 `Timer`를 재스케줄 (미구현)
 - 파생: `currentSessionDuration`, `totalDuration`
-- 타이머 tick에서 `activeSession.duration += Date.now - lastTickAt` 패턴으로 누적
-- 상태가 바뀔 때마다 `Persistence.requestSave()` 호출
+- 타이머 tick에서 `activeSession.duration += clock.now - lastTickAt` 패턴으로 누적
+- 상태가 바뀔 때마다 `onStateChanged?()` 콜백 호출 → `HyperfocusApp`이 `Persistence.requestSave()` 실행
 
 ### 4.3 `StatisticsStore`
 - 보유 상태: `pastDays: [Day]` (시간 역순 정렬 가정)
-- `TimerStore.endDay()` 호출 시점에 직전 하루를 push 받음 (빈 하루는 push하지 않음)
+- `TimerStore.endDay()` 호출 시점에 `onDayClosed` 콜백으로 마감 하루를 받음 (빈 하루는 push하지 않음)
 - 파생: `recentAverage(count: Int)` — SPEC §7.3 일평균 계산
-- 합산 뷰 데이터(`aggregatedSessions(of: Day) -> [(title: String, total: TimeInterval)]`)는 `SessionAggregation` 유틸을 호출
+- 합산 뷰 데이터(`aggregatedSessions(of: Day) -> [AggregatedSession]`)는 `SessionAggregation` 유틸을 호출
+- 진행 중 세션 포함 버전: `aggregatedSessionsIncluding(day:active:)` — 오늘 카드에서 사용
 
 ### 4.4 `Persistence`
 - 단일 JSON 파일 입출력. 첫 실행 시 빈 상태 반환
@@ -193,12 +194,12 @@ HyperfocusTests/
 - 단순 wrapper. 테스트에선 mock 사용
 
 ### 4.6 `Clock`
-- `protocol Clock { var now: Date { get } }`. 기본 구현은 `Date()` 반환
-- `TimerStore` 테스트에서 시간을 임의로 흘리기 위해 도입
+- `protocol ClockProtocol { var now: Date { get } }`. 기본 구현은 `struct SystemClock`으로 `Date()` 반환
+- `TimerStore` 테스트에서 시간을 임의로 흘리기 위해 도입 (`MockClock`으로 교체)
 
 ### 4.7 View 레이어
 - 모든 뷰는 `@Environment`로 Store를 주입받는다 (private state 최소화)
-- `MenuBarLabel`은 `currentSessionDuration`만 본다. **항상 `HH:MM:SS` 텍스트로 표시** (idle이면 `00:00:00`). 아이콘 전환 없음 (SPEC §3.1)
+- `MenuBarLabel`은 `currentSessionDuration`만 본다. **항상 `HH:MM:SS` 텍스트로 표시** (idle이면 `00:00:00`). 아이콘 전환 없음 (SPEC §3.1). 구현은 `NSImage`에 텍스트를 그려 반환하는 방식(`isTemplate = true`로 라이트/다크 자동 대응)
 - 시간 텍스트는 `monospacedDigit()` 폰트 modifier + 고정 너비 frame으로 메뉴바 흔들림 방지
 - `PopoverRoot`는 두 화면 사이 전환만 담당. 화면별 로직은 각 Screen에 둠
 - `DayDetailView`는 `StatisticsStore.aggregatedSessions(of:)`만 호출해서 표시
@@ -247,13 +248,13 @@ TimerControls (View)
 
 ### 5.4 End (하루 마감)
 ```
-TimerControls → 확인 다이얼로그 → 확정
-  → TimerStore.endDay()
-    - activeSession이 있고 duration > 0이면 currentDay.sessions에 append
-    - currentDay.endedAt = Date.now
-    - StatisticsStore.appendClosedDay(currentDay) (단, 빈 하루면 append 안 함)
-    - currentDay = 새 빈 Day, activeSession = nil, isRunning = false
-    - Persistence.requestSave()
+TimerControls (End 버튼)
+  → TimerStore.resetTotal()
+    - activeSession이 있고 duration > 0이면 currentCycle.sessions에 append
+    - currentCycle.endedAt = Date.now
+    - onCycleClosed?(currentCycle) → StatisticsStore.appendClosedCycle() (단, 빈 주기면 skip)
+    - currentCycle = 새 빈 Cycle, activeSession = nil, isRunning = false
+    - onStateChanged?() → Persistence.requestSave()
   → 모든 화면 자동 갱신, MenuBarLabel은 00:00:00 텍스트 유지
 ```
 
@@ -270,8 +271,10 @@ NSWorkspace.willSleepNotification
 ```
 HyperfocusApp.init
   → Persistence.load() → PersistedState
-  → TimerStore에 currentCycle/activeSession 주입, isRunning은 항상 false (SPEC §9)
-  → StatisticsStore에 pastCycles 주입
+  → TimerStore(currentCycle:activeSession:) 초기화, isRunning은 항상 false (SPEC §9)
+  → StatisticsStore(pastCycles:) 초기화
+  → onCycleClosed / onStateChanged 콜백 연결
+  → SleepObserver 시작
   → MenuBarExtra 표시
 ```
 
@@ -392,7 +395,7 @@ UI/시스템 통합(메뉴바 표시, 슬립 알림 발화)은 수동 검증 영
 | 자동 마감 경계 시각 변경 (새벽 6시 → 자정 등) | `TimerStore.checkAndPerformRollover()`의 경계 시각 계산 로직 |
 | 다른 저장 포맷 (SQLite 등) | `Services/Persistence.swift`만 교체. Store/View 변경 없음 |
 | 통계 화면에 차트 추가 | `Views/Stats/` 하위에 새 컴포넌트 추가, Store 변경 불필요 |
-| 타이머 상태 구분(idle/running/paused) 변경 | `TimerStore.swift` 액션 로직 + `TimerControls.swift` 버튼 분기 |
+| 타이머 상태 구분(idle/running/paused) 변경 | `TimerStore.swift` 액션 로직(`start/pause/resetSession/resetTotal`) + `TimerControls.swift` 버튼 분기 |
 | 팝오버 키보드 단축키 동작 변경 | `Views/Timer/TimerScreen.swift`(Space 처리), `Views/Timer/TitleField.swift`(Return + 자동 포커스), SPEC §3.2 |
 | Title 필드 모드 전환(입력↔표시) 동작 변경 | `Views/Timer/TitleField.swift`(모드 전환 로직), SPEC §4.1 |
 | 타이머 화면 버튼 레이아웃 변경 | `Views/Timer/TimerControls.swift`(버튼 배치), SPEC §4.1 |

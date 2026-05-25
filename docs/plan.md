@@ -39,7 +39,7 @@
 1. `Models/Session.swift` — `Session: Codable, Identifiable` 작성
 2. `Models/Day.swift` — `Day: Codable, Identifiable` 작성
 3. `Models/PersistedState.swift` — 루트 구조 + `schemaVersion`
-4. `Services/Clock.swift` — `protocol Clock { var now: Date { get } }` + `SystemClock` 기본 구현
+4. `Services/Clock.swift` — `protocol ClockProtocol { var now: Date { get } }` + `struct SystemClock` 기본 구현
 5. `Services/Persistence.swift`
    - 저장 경로: `Application Support/Hyperfocus/state.json` (없으면 자동 생성)
    - `load() -> PersistedState` (파일 없으면 빈 상태)
@@ -60,17 +60,16 @@
 **할 일:**
 1. `Stores/TimerStore.swift` — `@Observable` 클래스
    - 보유: `currentDay: Day`, `activeSession: Session?`, `isRunning: Bool`, `lastTickAt: Date?`
-   - 액션: `start()`, `pause()`, `resetSession()`, `endDay()`, `updateActiveSessionTitle(_:)`, `checkAndPerformRollover()`
+   - 액션: `start()`, `pause()`, `pauseForSleep()`, `resetSession()`, `endDay()`, `updateActiveSessionName(_:)`
    - 파생: `currentSessionDuration`, `totalDuration`
+   - 콜백: `onDayClosed: ((Day) -> Void)?`, `onStateChanged: (() -> Void)?`
 2. tick 메커니즘: `Timer.publish(every: 1.0, on: .main, in: .common)` 구독,
    매 tick에서 `delta = clock.now - lastTickAt` 누적
-3. 6시 자동 마감 타이머: `checkAndPerformRollover()` 호출 후 다음 새벽 6시 시각으로 `Timer` 재스케줄
-4. 상태 변경마다 `Persistence.requestSave()` 호출
-5. `HyperfocusTests/TimerStoreTests.swift`
-   - `Clock` mock으로 시간 임의 진행
+3. 상태 변경마다 `onStateChanged?()` 호출 → `HyperfocusApp`이 `Persistence.requestSave()` 실행
+4. `HyperfocusTests/TimerStoreTests.swift`
+   - `ClockProtocol` mock(`MockClock`)으로 시간 임의 진행
    - SPEC §5 + §10 엣지 케이스 표의 각 행을 테스트 케이스화
    - 특히: 누적 0 세션이 기록되지 않는 것, 세션 리셋 후 idle 복귀(activeSession = nil, isRunning = false), `endDay` 시 빈 하루 미기록
-   - `checkAndPerformRollover()` — 새벽 6시 경계 초과 시 하루 자동 마감 동작 검증
 
 **검증:**
 - 모든 단위 테스트 통과
@@ -93,11 +92,11 @@
    - 보유: `pastDays: [Day]` (최신이 앞)
    - 액션: `appendClosedDay(_ day: Day)` — 빈 하루(세션 0개)면 무시
    - 파생: `recentAverage(count: Int = 7) -> (average: TimeInterval, sampleSize: Int)?`
-   - 헬퍼: `aggregatedSessions(of: Day) -> [(title: String, total: TimeInterval)]`
-4. `TimerStore.endDay()`가 `StatisticsStore.appendClosedDay()`를 호출하도록 연결
+   - 헬퍼: `aggregatedSessions(of: Day) -> [AggregatedSession]`, `aggregatedSessionsIncluding(day:active:) -> [AggregatedSession]`
+4. `TimerStore.onDayClosed` 콜백에서 `StatisticsStore.appendClosedDay()` 호출 (`HyperfocusApp`에서 연결)
 5. 테스트:
    - `SessionAggregationTests.swift` — 빈 이름/공백/대소문자/합산 케이스
-   - `AverageCalculationTests.swift` — 0/3/7/10개 주기 경계
+   - `AverageCalculationTests.swift` — 0/3/7/10개 하루 경계
    - `TimeFormattingTests.swift` — 0초/59초/1시간/100시간
 
 **검증:**
@@ -146,7 +145,7 @@
 3. `Views/Timer/TimerControls.swift`
    - 기본 버튼 영역(위 divider): idle→`[Start]`, running→`[Pause][Reset]`, paused→`[Resume][Reset]`
    - 보조 버튼 영역(위 divider, 항상): `[End]`+`[Stats]` 나란히
-   - End 누르면 confirmation alert 후 `TimerStore.endDay()`, Stats는 콜백으로 화면 전환
+   - End 누르면 `TimerStore.endDay()` 호출, Stats는 콜백으로 화면 전환
 4. `Views/Timer/TimerScreen.swift`
    - 위 컴포넌트 조립
 5. `PopoverRoot`의 timer 케이스를 `TimerScreen()`으로 교체
@@ -157,7 +156,7 @@
 - Title 비어있으면 input 필드, 입력 후엔 텍스트+편집 아이콘 표시 확인
 - Pause → 시간 멈춤, 메뉴바 라벨 현재 시간 고정
 - Reset → Current 0, Today는 마감 세션 합계, Title 필드 초기화, idle 상태 복귀 (`Start` 버튼 단독 표시)
-- End → 확인 다이얼로그 → Current/Today 둘 다 0, 메뉴바 `00:00:00` 텍스트 유지
+- End → Current/Today 둘 다 0, 메뉴바 `00:00:00` 텍스트 유지
 - End 후 상태가 디스크에도 반영됨
 
 ---
@@ -171,7 +170,7 @@
    - `StatisticsStore.recentAverage()`를 받아 표시
    - 0개일 때 안내 문구, 7개 미만일 때 sample size 표기
 2. `Views/Stats/CurrentDayCardView.swift`
-   - 오늘 하루의 시작 일시, 누적, 합산 세션 리스트 (`aggregatedSessions(of:)`)
+   - 오늘 하루의 시작 일시, 누적, 합산 세션 리스트 (`aggregatedSessionsIncluding(day:active:)`)
    - 진행 중 세션은 합산에 포함시켜야 함 (오늘 하루 한정)
 3. `Views/Stats/PastDayRowView.swift`
    - 한 날 요약 (시작/종료/총합)
@@ -241,10 +240,11 @@
    - `@FocusState`를 추가하고 `TimerStore`가 idle 상태일 때 자동 포커스 획득
    - `.onSubmit` 핸들러: `TimerStore.start()` 호출 후 `@Environment(\.dismiss)`로 Popover 닫기
 2. `Views/Timer/TimerScreen.swift`
-   - `.onKeyPress(.space)` modifier 추가 (포커스 가능한 컨테이너에 연결)
+   - `NSEvent.addLocalMonitorForEvents(matching: .keyDown)` 로 Space 키 가로채기
+     (SwiftUI `.onKeyPress`는 포커스 체인 신뢰성 문제로 사용하지 않음)
      - running → `TimerStore.pause()`, Popover 유지
      - paused → `TimerStore.start()` 후 `dismiss()` 실행
-     - idle → 처리 안 함 (텍스트 필드가 포커스를 보유하므로 SwiftUI가 Space를 필드로 라우팅)
+     - idle → 이벤트 통과, 텍스트 필드가 공백 문자로 처리
 
 **검증 (수동):**
 - Popover를 열면 idle 상태일 때 Title 입력 필드에 커서(커서 깜빡임)가 자동으로 들어옴

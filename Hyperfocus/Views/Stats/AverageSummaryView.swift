@@ -7,10 +7,10 @@ struct AverageSummaryView: View {
         Group {
             if let result = statsStore.recentAverage() {
                 if result.sampleSize < 7 {
-                    Text("최근 \(result.sampleSize)주기 평균 \(formatHumanShort(result.average))")
+                    Text("최근 \(result.sampleSize)일 평균 \(formatHumanShort(result.average))")
                         .font(.headline)
                 } else {
-                    Text("최근 7주기 평균 \(formatHumanShort(result.average))")
+                    Text("최근 7일 평균 \(formatHumanShort(result.average))")
                         .font(.headline)
                 }
             } else {

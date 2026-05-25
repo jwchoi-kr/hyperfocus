@@ -3,7 +3,7 @@ import SwiftUI
 enum PopoverScreen {
     case timer
     case stats
-    case cycleDetail(Cycle)
+    case dayDetail(Day)
 }
 
 struct PopoverRoot: View {
@@ -19,11 +19,11 @@ struct PopoverRoot: View {
         case .stats:
             StatsScreen(
                 onBack: { screen = .timer },
-                onSelectCycle: { cycle in screen = .cycleDetail(cycle) }
+                onSelectDay: { day in screen = .dayDetail(day) }
             )
             .frame(width: 300)
-        case .cycleDetail(let cycle):
-            CycleDetailView(cycle: cycle, onBack: { screen = .stats })
+        case .dayDetail(let day):
+            DayDetailView(day: day, onBack: { screen = .stats })
                 .frame(width: 300)
         }
     }

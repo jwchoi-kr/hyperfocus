@@ -1,6 +1,6 @@
 import Foundation
 
-struct Cycle: Codable, Identifiable {
+struct Day: Codable, Identifiable {
     let id: UUID
     let startedAt: Date
     var endedAt: Date?

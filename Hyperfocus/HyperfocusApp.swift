@@ -12,17 +12,17 @@ struct HyperfocusApp: App {
 
     init() {
         let state = persistence.load()
-        let stats = StatisticsStore(pastCycles: state.pastCycles)
+        let stats = StatisticsStore(pastDays: state.pastDays)
         let timer = TimerStore(
-            currentCycle: state.currentCycle,
+            currentDay: state.currentDay,
             activeSession: state.activeSession
         )
         self.statsStore = stats
         self.timerStore = timer
 
-        // Wire cycle-closed callback
-        timer.onCycleClosed = { [weak stats] cycle in
-            stats?.appendClosedCycle(cycle)
+        // Wire day-closed callback
+        timer.onDayClosed = { [weak stats] day in
+            stats?.appendClosedDay(day)
         }
 
         // Wire state-changed callback to trigger debounced persistence
@@ -30,8 +30,8 @@ struct HyperfocusApp: App {
         timer.onStateChanged = { [weak timer, weak stats] in
             guard let t = timer, let s = stats else { return }
             p.requestSave(PersistedState(
-                currentCycle: t.currentCycle,
-                pastCycles: s.pastCycles,
+                currentDay: t.currentDay,
+                pastDays: s.pastDays,
                 activeSession: t.activeSession
             ))
         }
@@ -42,8 +42,8 @@ struct HyperfocusApp: App {
             t.pauseForSleep()
             guard let s = stats else { return }
             p.saveNow(PersistedState(
-                currentCycle: t.currentCycle,
-                pastCycles: s.pastCycles,
+                currentDay: t.currentDay,
+                pastDays: s.pastDays,
                 activeSession: t.activeSession
             ))
             logger.info("State flushed before sleep")
@@ -57,8 +57,8 @@ struct HyperfocusApp: App {
         ) { [weak timer, weak stats] _ in
             guard let t = timer, let s = stats else { return }
             p.saveNow(PersistedState(
-                currentCycle: t.currentCycle,
-                pastCycles: s.pastCycles,
+                currentDay: t.currentDay,
+                pastDays: s.pastDays,
                 activeSession: t.activeSession
             ))
             logger.info("State flushed on termination")

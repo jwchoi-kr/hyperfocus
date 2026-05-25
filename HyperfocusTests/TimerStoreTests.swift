@@ -7,10 +7,10 @@ final class TimerStoreTests: XCTestCase {
 
     private func makeStore(
         clock: MockClock = MockClock(),
-        currentCycle: Cycle = Cycle(),
+        currentDay: Day = Day(),
         activeSession: Session? = nil
     ) -> TimerStore {
-        TimerStore(currentCycle: currentCycle, activeSession: activeSession, clock: clock)
+        TimerStore(currentDay: currentDay, activeSession: activeSession, clock: clock)
     }
 
     // MARK: - start / pause
@@ -60,9 +60,9 @@ final class TimerStoreTests: XCTestCase {
 
     func test_totalDuration_sumsPastAndCurrentSession() {
         let past = Session(name: "A", duration: 120)
-        var cycle = Cycle()
-        cycle.sessions = [past]
-        let store = makeStore(currentCycle: cycle, activeSession: Session(duration: 60))
+        var day = Day()
+        day.sessions = [past]
+        let store = makeStore(currentDay: day, activeSession: Session(duration: 60))
         XCTAssertEqual(store.totalDuration, 180, accuracy: 0.001)
     }
 
@@ -71,14 +71,14 @@ final class TimerStoreTests: XCTestCase {
     func test_resetSession_savesSessionWithPositiveDuration() {
         let store = makeStore(activeSession: Session(name: "작업", duration: 50))
         store.resetSession()
-        XCTAssertEqual(store.currentCycle.sessions.count, 1)
-        XCTAssertEqual(store.currentCycle.sessions[0].name, "작업")
+        XCTAssertEqual(store.currentDay.sessions.count, 1)
+        XCTAssertEqual(store.currentDay.sessions[0].name, "작업")
     }
 
     func test_resetSession_doesNotSaveZeroDurationSession() {
         let store = makeStore(activeSession: Session(name: "빈", duration: 0))
         store.resetSession()
-        XCTAssertTrue(store.currentCycle.sessions.isEmpty)
+        XCTAssertTrue(store.currentDay.sessions.isEmpty)
     }
 
     func test_resetSession_clearsActiveSessionDuration() {
@@ -89,9 +89,9 @@ final class TimerStoreTests: XCTestCase {
 
     func test_resetSession_preservesTotalDuration() {
         let past = Session(name: "이전", duration: 100)
-        var cycle = Cycle()
-        cycle.sessions = [past]
-        let store = makeStore(currentCycle: cycle, activeSession: Session(duration: 50))
+        var day = Day()
+        day.sessions = [past]
+        let store = makeStore(currentDay: day, activeSession: Session(duration: 50))
         store.resetSession()
         // After reset: past(100) + committed(50) = 150 (no active session)
         XCTAssertEqual(store.totalDuration, 150, accuracy: 0.001)
@@ -120,7 +120,7 @@ final class TimerStoreTests: XCTestCase {
         store.resetSession()
         XCTAssertFalse(store.isRunning)
         XCTAssertNil(store.activeSession)
-        XCTAssertEqual(store.currentCycle.sessions.count, 1)
+        XCTAssertEqual(store.currentDay.sessions.count, 1)
     }
 
     func test_resetSession_immediatelyAfterStart_doesNotRecord() {
@@ -128,59 +128,59 @@ final class TimerStoreTests: XCTestCase {
         let store = makeStore()
         store.start()
         store.resetSession()
-        XCTAssertTrue(store.currentCycle.sessions.isEmpty)
+        XCTAssertTrue(store.currentDay.sessions.isEmpty)
         XCTAssertNil(store.activeSession)
         XCTAssertFalse(store.isRunning)
     }
 
-    // MARK: - resetTotal
+    // MARK: - endDay
 
-    func test_resetTotal_commitsNonZeroSession() {
+    func test_endDay_commitsNonZeroSession() {
         let store = makeStore(activeSession: Session(name: "마지막", duration: 80))
-        var calledWith: Cycle?
-        store.onCycleClosed = { calledWith = $0 }
-        store.resetTotal()
+        var calledWith: Day?
+        store.onDayClosed = { calledWith = $0 }
+        store.endDay()
         XCTAssertEqual(calledWith?.sessions.count, 1)
         XCTAssertEqual(calledWith?.sessions[0].name, "마지막")
     }
 
-    func test_resetTotal_doesNotCommitZeroDurationSession() {
+    func test_endDay_doesNotCommitZeroDurationSession() {
         let store = makeStore(activeSession: Session(duration: 0))
-        var calledWith: Cycle?
-        store.onCycleClosed = { calledWith = $0 }
-        store.resetTotal()
+        var calledWith: Day?
+        store.onDayClosed = { calledWith = $0 }
+        store.endDay()
         XCTAssertTrue(calledWith?.sessions.isEmpty ?? true)
     }
 
-    func test_resetTotal_emptyCycle_doesNotCallOnCycleClosed() {
-        // SPEC §10: 빈 주기는 과거 목록에 추가하지 않음
+    func test_endDay_emptyDay_doesNotCallOnDayClosed() {
+        // SPEC §10: 빈 하루는 과거 목록에 추가하지 않음
         let store = makeStore()
         var closed = false
-        store.onCycleClosed = { _ in closed = true }
-        store.resetTotal()
+        store.onDayClosed = { _ in closed = true }
+        store.endDay()
         XCTAssertFalse(closed)
     }
 
-    func test_resetTotal_stopsTimer() {
+    func test_endDay_stopsTimer() {
         let store = makeStore(activeSession: Session(duration: 10))
         store.start()
-        store.resetTotal()
+        store.endDay()
         XCTAssertFalse(store.isRunning)
     }
 
-    func test_resetTotal_resetsTimersToZero() {
+    func test_endDay_resetsTimersToZero() {
         let store = makeStore(activeSession: Session(duration: 10))
-        store.resetTotal()
+        store.endDay()
         XCTAssertEqual(store.currentSessionDuration, 0)
         XCTAssertEqual(store.totalDuration, 0)
     }
 
-    func test_resetTotal_emptyCycleWithStopState_doesNotFire() {
-        // SPEC §10: 진행 중 세션이 한 번도 시작되지 않은 빈 주기에서 전체 리셋
+    func test_endDay_emptyDayWithStopState_doesNotFire() {
+        // SPEC §10: 진행 중 세션이 한 번도 시작되지 않은 빈 하루에서 종료
         let store = makeStore()
         var fired = false
-        store.onCycleClosed = { _ in fired = true }
-        store.resetTotal()
+        store.onDayClosed = { _ in fired = true }
+        store.endDay()
         XCTAssertFalse(fired)
     }
 
@@ -189,19 +189,19 @@ final class TimerStoreTests: XCTestCase {
     func test_resetSession_trimsWhitespaceInName() {
         let store = makeStore(activeSession: Session(name: "  작업  ", duration: 10))
         store.resetSession()
-        XCTAssertEqual(store.currentCycle.sessions[0].name, "작업")
+        XCTAssertEqual(store.currentDay.sessions[0].name, "작업")
     }
 
     func test_resetSession_blankNameBecomesUnnamed() {
         let store = makeStore(activeSession: Session(name: "   ", duration: 10))
         store.resetSession()
-        XCTAssertEqual(store.currentCycle.sessions[0].name, "(Untitled)")
+        XCTAssertEqual(store.currentDay.sessions[0].name, "(Untitled)")
     }
 
     func test_resetSession_emptyNameBecomesUnnamed() {
         let store = makeStore(activeSession: Session(name: "", duration: 10))
         store.resetSession()
-        XCTAssertEqual(store.currentCycle.sessions[0].name, "(Untitled)")
+        XCTAssertEqual(store.currentDay.sessions[0].name, "(Untitled)")
     }
 
     // MARK: - updateActiveSessionName
