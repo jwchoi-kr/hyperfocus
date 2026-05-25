@@ -1,0 +1,512 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		AA0000000000000000000200 /* HyperfocusApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000100 /* HyperfocusApp.swift */; };
+		AA0000000000000000000201 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000101 /* Session.swift */; };
+		AA0000000000000000000202 /* Cycle.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000102 /* Cycle.swift */; };
+		AA0000000000000000000203 /* PersistedState.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000103 /* PersistedState.swift */; };
+		AA0000000000000000000204 /* Clock.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000104 /* Clock.swift */; };
+		AA0000000000000000000205 /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000105 /* Persistence.swift */; };
+		AA0000000000000000000206 /* SleepObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000106 /* SleepObserver.swift */; };
+		AA0000000000000000000207 /* TimerStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000107 /* TimerStore.swift */; };
+		AA0000000000000000000208 /* StatisticsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000108 /* StatisticsStore.swift */; };
+		AA0000000000000000000209 /* TimeFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000109 /* TimeFormatting.swift */; };
+		AA000000000000000000020A /* SessionAggregation.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000010A /* SessionAggregation.swift */; };
+		AA000000000000000000020B /* MenuBarLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000010B /* MenuBarLabel.swift */; };
+		AA000000000000000000020C /* PopoverRoot.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000010C /* PopoverRoot.swift */; };
+		AA000000000000000000020D /* TimeDisplayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000010D /* TimeDisplayView.swift */; };
+		AA000000000000000000020E /* SessionNameField.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000010E /* SessionNameField.swift */; };
+		AA000000000000000000020F /* TimerControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000010F /* TimerControls.swift */; };
+		AA0000000000000000000210 /* TimerScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000110 /* TimerScreen.swift */; };
+		AA0000000000000000000211 /* AverageSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000111 /* AverageSummaryView.swift */; };
+		AA0000000000000000000212 /* CurrentCycleCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000112 /* CurrentCycleCardView.swift */; };
+		AA0000000000000000000213 /* PastCycleRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000113 /* PastCycleRowView.swift */; };
+		AA0000000000000000000214 /* CycleDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000114 /* CycleDetailView.swift */; };
+		AA0000000000000000000215 /* StatsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000115 /* StatsScreen.swift */; };
+		AA0000000000000000000220 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000120 /* Assets.xcassets */; };
+		AA0000000000000000000230 /* TimerStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000130 /* TimerStoreTests.swift */; };
+		AA0000000000000000000231 /* SessionAggregationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000131 /* SessionAggregationTests.swift */; };
+		AA0000000000000000000232 /* PersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000132 /* PersistenceTests.swift */; };
+		AA0000000000000000000233 /* AverageCalculationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000133 /* AverageCalculationTests.swift */; };
+		AA0000000000000000000234 /* TimeFormattingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000134 /* TimeFormattingTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		AA000000000000000000000F /* Hyperfocus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hyperfocus.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA0000000000000000000010 /* HyperfocusTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HyperfocusTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA0000000000000000000121 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		AA0000000000000000000100 /* HyperfocusApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HyperfocusApp.swift; sourceTree = "<group>"; };
+		AA0000000000000000000101 /* Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
+		AA0000000000000000000102 /* Cycle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cycle.swift; sourceTree = "<group>"; };
+		AA0000000000000000000103 /* PersistedState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistedState.swift; sourceTree = "<group>"; };
+		AA0000000000000000000104 /* Clock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Clock.swift; sourceTree = "<group>"; };
+		AA0000000000000000000105 /* Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persistence.swift; sourceTree = "<group>"; };
+		AA0000000000000000000106 /* SleepObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepObserver.swift; sourceTree = "<group>"; };
+		AA0000000000000000000107 /* TimerStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerStore.swift; sourceTree = "<group>"; };
+		AA0000000000000000000108 /* StatisticsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsStore.swift; sourceTree = "<group>"; };
+		AA0000000000000000000109 /* TimeFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeFormatting.swift; sourceTree = "<group>"; };
+		AA000000000000000000010A /* SessionAggregation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionAggregation.swift; sourceTree = "<group>"; };
+		AA000000000000000000010B /* MenuBarLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarLabel.swift; sourceTree = "<group>"; };
+		AA000000000000000000010C /* PopoverRoot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopoverRoot.swift; sourceTree = "<group>"; };
+		AA000000000000000000010D /* TimeDisplayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeDisplayView.swift; sourceTree = "<group>"; };
+		AA000000000000000000010E /* SessionNameField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionNameField.swift; sourceTree = "<group>"; };
+		AA000000000000000000010F /* TimerControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerControls.swift; sourceTree = "<group>"; };
+		AA0000000000000000000110 /* TimerScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerScreen.swift; sourceTree = "<group>"; };
+		AA0000000000000000000111 /* AverageSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AverageSummaryView.swift; sourceTree = "<group>"; };
+		AA0000000000000000000112 /* CurrentCycleCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentCycleCardView.swift; sourceTree = "<group>"; };
+		AA0000000000000000000113 /* PastCycleRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PastCycleRowView.swift; sourceTree = "<group>"; };
+		AA0000000000000000000114 /* CycleDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CycleDetailView.swift; sourceTree = "<group>"; };
+		AA0000000000000000000115 /* StatsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsScreen.swift; sourceTree = "<group>"; };
+		AA0000000000000000000120 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		AA0000000000000000000130 /* TimerStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerStoreTests.swift; sourceTree = "<group>"; };
+		AA0000000000000000000131 /* SessionAggregationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionAggregationTests.swift; sourceTree = "<group>"; };
+		AA0000000000000000000132 /* PersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceTests.swift; sourceTree = "<group>"; };
+		AA0000000000000000000133 /* AverageCalculationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AverageCalculationTests.swift; sourceTree = "<group>"; };
+		AA0000000000000000000134 /* TimeFormattingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeFormattingTests.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXContainerItemProxy section */
+		AA000000000000000000DP01 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AA000000000000000000000A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AA000000000000000000000D;
+			remoteInfo = Hyperfocus;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXTargetDependency section */
+		AA000000000000000000DD01 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AA000000000000000000000D /* Hyperfocus */;
+			targetProxy = AA000000000000000000DP01 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		AA0000000000000000000042 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AA0000000000000000000044 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		AA000000000000000000000B = {
+			isa = PBXGroup;
+			children = (
+				AA000000000000000000G000 /* Hyperfocus */,
+				AA000000000000000000G008 /* HyperfocusTests */,
+				AA000000000000000000000C /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		AA000000000000000000G000 /* Hyperfocus */ = {
+			isa = PBXGroup;
+			children = (
+				AA000000000000000000G001 /* Models */,
+				AA000000000000000000G002 /* Stores */,
+				AA000000000000000000G003 /* Services */,
+				AA000000000000000000G004 /* Views */,
+				AA000000000000000000G007 /* Utilities */,
+				AA0000000000000000000100 /* HyperfocusApp.swift */,
+				AA0000000000000000000120 /* Assets.xcassets */,
+				AA0000000000000000000121 /* Info.plist */,
+			);
+			path = Hyperfocus;
+			sourceTree = "<group>";
+		};
+		AA000000000000000000000C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				AA000000000000000000000F /* Hyperfocus.app */,
+				AA0000000000000000000010 /* HyperfocusTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		AA000000000000000000G001 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				AA0000000000000000000101 /* Session.swift */,
+				AA0000000000000000000102 /* Cycle.swift */,
+				AA0000000000000000000103 /* PersistedState.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		AA000000000000000000G002 /* Stores */ = {
+			isa = PBXGroup;
+			children = (
+				AA0000000000000000000107 /* TimerStore.swift */,
+				AA0000000000000000000108 /* StatisticsStore.swift */,
+			);
+			path = Stores;
+			sourceTree = "<group>";
+		};
+		AA000000000000000000G003 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				AA0000000000000000000104 /* Clock.swift */,
+				AA0000000000000000000105 /* Persistence.swift */,
+				AA0000000000000000000106 /* SleepObserver.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		AA000000000000000000G004 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				AA000000000000000000G005 /* Timer */,
+				AA000000000000000000G006 /* Stats */,
+				AA000000000000000000010B /* MenuBarLabel.swift */,
+				AA000000000000000000010C /* PopoverRoot.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		AA000000000000000000G005 /* Timer */ = {
+			isa = PBXGroup;
+			children = (
+				AA000000000000000000010D /* TimeDisplayView.swift */,
+				AA000000000000000000010E /* SessionNameField.swift */,
+				AA000000000000000000010F /* TimerControls.swift */,
+				AA0000000000000000000110 /* TimerScreen.swift */,
+			);
+			path = Timer;
+			sourceTree = "<group>";
+		};
+		AA000000000000000000G006 /* Stats */ = {
+			isa = PBXGroup;
+			children = (
+				AA0000000000000000000111 /* AverageSummaryView.swift */,
+				AA0000000000000000000112 /* CurrentCycleCardView.swift */,
+				AA0000000000000000000113 /* PastCycleRowView.swift */,
+				AA0000000000000000000114 /* CycleDetailView.swift */,
+				AA0000000000000000000115 /* StatsScreen.swift */,
+			);
+			path = Stats;
+			sourceTree = "<group>";
+		};
+		AA000000000000000000G007 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				AA0000000000000000000109 /* TimeFormatting.swift */,
+				AA000000000000000000010A /* SessionAggregation.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		AA000000000000000000G008 /* HyperfocusTests */ = {
+			isa = PBXGroup;
+			children = (
+				AA0000000000000000000130 /* TimerStoreTests.swift */,
+				AA0000000000000000000131 /* SessionAggregationTests.swift */,
+				AA0000000000000000000132 /* PersistenceTests.swift */,
+				AA0000000000000000000133 /* AverageCalculationTests.swift */,
+				AA0000000000000000000134 /* TimeFormattingTests.swift */,
+			);
+			path = HyperfocusTests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		AA000000000000000000000D /* Hyperfocus */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AA0000000000000000000021 /* Build configuration list for PBXNativeTarget "Hyperfocus" */;
+			buildPhases = (
+				AA0000000000000000000040 /* Sources */,
+				AA0000000000000000000042 /* Frameworks */,
+				AA0000000000000000000041 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Hyperfocus;
+			productName = Hyperfocus;
+			productReference = AA000000000000000000000F /* Hyperfocus.app */;
+			productType = "com.apple.product-type.application";
+		};
+		AA000000000000000000000E /* HyperfocusTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AA0000000000000000000022 /* Build configuration list for PBXNativeTarget "HyperfocusTests" */;
+			buildPhases = (
+				AA0000000000000000000043 /* Sources */,
+				AA0000000000000000000044 /* Frameworks */,
+				AA0000000000000000000045 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				AA000000000000000000DD01 /* PBXTargetDependency */,
+			);
+			name = HyperfocusTests;
+			productName = HyperfocusTests;
+			productReference = AA0000000000000000000010 /* HyperfocusTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		AA000000000000000000000A /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1700;
+				LastUpgradeCheck = 1700;
+				TargetAttributes = {
+					AA000000000000000000000D = {
+						CreatedOnToolsVersion = 15.0;
+					};
+					AA000000000000000000000E = {
+						CreatedOnToolsVersion = 15.0;
+						TestTargetID = AA000000000000000000000D;
+					};
+				};
+			};
+			buildConfigurationList = AA0000000000000000000020 /* Build configuration list for PBXProject "Hyperfocus" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = AA000000000000000000000B /* Hyperfocus */;
+			productRefGroup = AA000000000000000000000C /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				AA000000000000000000000D /* Hyperfocus */,
+				AA000000000000000000000E /* HyperfocusTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		AA0000000000000000000041 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA0000000000000000000220 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AA0000000000000000000045 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		AA0000000000000000000040 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA0000000000000000000200 /* HyperfocusApp.swift in Sources */,
+				AA0000000000000000000201 /* Session.swift in Sources */,
+				AA0000000000000000000202 /* Cycle.swift in Sources */,
+				AA0000000000000000000203 /* PersistedState.swift in Sources */,
+				AA0000000000000000000204 /* Clock.swift in Sources */,
+				AA0000000000000000000205 /* Persistence.swift in Sources */,
+				AA0000000000000000000206 /* SleepObserver.swift in Sources */,
+				AA0000000000000000000207 /* TimerStore.swift in Sources */,
+				AA0000000000000000000208 /* StatisticsStore.swift in Sources */,
+				AA0000000000000000000209 /* TimeFormatting.swift in Sources */,
+				AA000000000000000000020A /* SessionAggregation.swift in Sources */,
+				AA000000000000000000020B /* MenuBarLabel.swift in Sources */,
+				AA000000000000000000020C /* PopoverRoot.swift in Sources */,
+				AA000000000000000000020D /* TimeDisplayView.swift in Sources */,
+				AA000000000000000000020E /* SessionNameField.swift in Sources */,
+				AA000000000000000000020F /* TimerControls.swift in Sources */,
+				AA0000000000000000000210 /* TimerScreen.swift in Sources */,
+				AA0000000000000000000211 /* AverageSummaryView.swift in Sources */,
+				AA0000000000000000000212 /* CurrentCycleCardView.swift in Sources */,
+				AA0000000000000000000213 /* PastCycleRowView.swift in Sources */,
+				AA0000000000000000000214 /* CycleDetailView.swift in Sources */,
+				AA0000000000000000000215 /* StatsScreen.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AA0000000000000000000043 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA0000000000000000000230 /* TimerStoreTests.swift in Sources */,
+				AA0000000000000000000231 /* SessionAggregationTests.swift in Sources */,
+				AA0000000000000000000232 /* PersistenceTests.swift in Sources */,
+				AA0000000000000000000233 /* AverageCalculationTests.swift in Sources */,
+				AA0000000000000000000234 /* TimeFormattingTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		AA0000000000000000000030 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("DEBUG=1", "$(inherited)");
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		AA0000000000000000000031 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = NO;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "";
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+			};
+			name = Release;
+		};
+		AA0000000000000000000032 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSTESTATELOGGING_ENABLED = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEAD_CODE_STRIPPING = YES;
+				INFOPLIST_FILE = Hyperfocus/Info.plist;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LE_APP_IDENTIFIER = "com.hyperfocus.app";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.hyperfocus.app";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+		AA0000000000000000000033 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSTESTATELOGGING_ENABLED = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEAD_CODE_STRIPPING = YES;
+				INFOPLIST_FILE = Hyperfocus/Info.plist;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LE_APP_IDENTIFIER = "com.hyperfocus.app";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.hyperfocus.app";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+		AA0000000000000000000034 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.hyperfocus.tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.9;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Hyperfocus.app/Contents/MacOS/Hyperfocus";
+			};
+			name = Debug;
+		};
+		AA0000000000000000000035 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.hyperfocus.tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.9;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Hyperfocus.app/Contents/MacOS/Hyperfocus";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		AA0000000000000000000020 /* Build configuration list for PBXProject "Hyperfocus" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA0000000000000000000030 /* Debug */,
+				AA0000000000000000000031 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AA0000000000000000000021 /* Build configuration list for PBXNativeTarget "Hyperfocus" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA0000000000000000000032 /* Debug */,
+				AA0000000000000000000033 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AA0000000000000000000022 /* Build configuration list for PBXNativeTarget "HyperfocusTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA0000000000000000000034 /* Debug */,
+				AA0000000000000000000035 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+	};
+	rootObject = AA000000000000000000000A /* Project object */;
+}
