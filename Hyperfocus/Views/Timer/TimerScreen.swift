@@ -34,7 +34,9 @@ struct TimerScreen: View {
         let dismissAction = dismiss
         spaceKeyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
             guard event.keyCode == 49,  // 49 = Space (하드웨어 키코드, 키보드 레이아웃 무관)
-                  event.modifierFlags.intersection([.shift, .control, .option, .command]).isEmpty
+                  event.modifierFlags.intersection([.shift, .control, .option, .command]).isEmpty,
+                  // NSTextView는 NSTextField 내부 편집기 — first responder이면 텍스트 필드 포커스 중
+                  !(NSApp.keyWindow?.firstResponder is NSTextView)
             else { return event }
 
             if store.isRunning {

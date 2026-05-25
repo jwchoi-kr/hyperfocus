@@ -15,6 +15,7 @@ struct TimeDisplayView: View {
         HStack(spacing: 0) {
             Text(label)
                 .frame(width: 70, alignment: .leading)
+                .foregroundStyle(.secondary)
             Text(formatHHMMSS(duration))
                 .monospacedDigit()
         }

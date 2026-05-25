@@ -1,9 +1,10 @@
 # Hyperfocus 구현 계획
 
-[SPEC.md](./SPEC.md)의 요구사항을 [architecture.md](./architecture.md)의 구조로 구현하는
+[spec.md](./spec.md)의 요구사항을 [architecture.md](./architecture.md)의 구조로 구현하는
 단계별 계획. 각 단계는 끝났을 때 무엇이 동작해야 하는지(verification)를 함께 명시한다.
 
 기본 원칙:
+
 - 한 단계가 끝나면 빌드가 통과하고 그 단계의 verification이 통과해야 다음으로 넘어간다
 - UI보다 도메인 로직(Models / Stores / Services)을 먼저 만든다 — 테스트로 확신을 잡고 UI는 그 위에 얹는다
 - 매 단계 끝에 commit 한 번
@@ -15,6 +16,7 @@
 **목표:** Xcode 프로젝트가 열리고, 메뉴바에 "Hello" 한 글자라도 떠야 한다.
 
 **할 일:**
+
 1. Xcode에서 macOS App 템플릿으로 새 프로젝트 생성, 경로 `/Users/jwchoi/Desktop/hyperfocus/Hyperfocus/`
    - Interface: SwiftUI, Language: Swift, Tests 포함
 2. `Info.plist`에 `LSUIElement = YES` 추가 (Dock/앱 스위처 미노출)
@@ -25,6 +27,7 @@
 6. `.gitignore` 추가 (Xcode 표준 무시 항목)
 
 **검증:**
+
 - `xcodebuild -scheme Hyperfocus build` 성공
 - 앱 실행 시 메뉴바에 stopwatch 아이콘 표시, Dock에는 안 보임
 - 클릭 시 빈 menu가 뜨거나 placeholder 표시
@@ -36,6 +39,7 @@
 **목표:** 디스크에 상태를 쓰고 다시 읽어들이는 사이클이 동작한다 (UI는 아직 없음).
 
 **할 일:**
+
 1. `Models/Session.swift` — `Session: Codable, Identifiable` 작성
 2. `Models/Day.swift` — `Day: Codable, Identifiable` 작성
 3. `Models/PersistedState.swift` — 루트 구조 + `schemaVersion`
@@ -48,6 +52,7 @@
 6. `HyperfocusTests/PersistenceTests.swift` — 임시 디렉토리에 round-trip 테스트
 
 **검증:**
+
 - 모든 테스트 통과
 - 디버그 빌드를 한 번 실행했다 종료하면 `state.json`이 빈 객체로 생성되어 있음
 
@@ -58,6 +63,7 @@
 **목표:** 코드만으로 SPEC §5의 모든 동작이 검증된다.
 
 **할 일:**
+
 1. `Stores/TimerStore.swift` — `@Observable` 클래스
    - 보유: `currentDay: Day`, `activeSession: Session?`, `isRunning: Bool`, `lastTickAt: Date?`
    - 액션: `start()`, `pause()`, `pauseForSleep()`, `resetSession()`, `endDay()`, `updateActiveSessionName(_:)`
@@ -72,6 +78,7 @@
    - 특히: 누적 0 세션이 기록되지 않는 것, 세션 리셋 후 idle 복귀(activeSession = nil, isRunning = false), `endDay` 시 빈 하루 미기록
 
 **검증:**
+
 - 모든 단위 테스트 통과
 - SPEC §10 엣지 케이스 표의 모든 행이 테스트로 커버됨
 
@@ -82,6 +89,7 @@
 **목표:** 과거 주기 데이터로 통계 화면이 필요로 하는 모든 값이 계산된다.
 
 **할 일:**
+
 1. `Utilities/SessionAggregation.swift`
    - 입력: `[Session]`, 출력: `[(title: String, total: TimeInterval)]` (시간 내림차순)
    - SPEC §6.2~6.3 규칙대로 빈/공백 Title은 `(Untitled)`로 정규화, 대소문자 구분
@@ -100,6 +108,7 @@
    - `TimeFormattingTests.swift` — 0초/59초/1시간/100시간
 
 **검증:**
+
 - 모든 단위 테스트 통과
 - `endDay` 호출 시 `StatisticsStore.pastDays`가 올바르게 갱신됨 (TimerStore 테스트에 통합 시나리오 추가)
 
@@ -110,6 +119,7 @@
 **목표:** 메뉴바 라벨이 상태에 따라 토글되고, 클릭 시 빈 Popover가 뜬다.
 
 **할 일:**
+
 1. `HyperfocusApp.swift` 업데이트
    - 앱 시작 시 `Persistence.load()` → `TimerStore`/`StatisticsStore`에 주입
    - 상태 로드 직후 `TimerStore.checkAndPerformRollover()` 호출 (앱 종료 중 새벽 6시를 넘긴 경우 처리)
@@ -126,6 +136,7 @@
    - 두 placeholder 뷰만 두고 화면 전환 토글 동작 확인
 
 **검증:**
+
 - 앱 실행 → 메뉴바 `00:00:00` 텍스트 표시
 - (TimerStore를 수동으로 `isRunning = true` 한 상태로 잠시 띄워서) 메뉴바 라벨이 `00:00:01`, `00:00:02`로 갱신
 - 클릭 시 popover-style 윈도우가 떴다 닫혔다 함
@@ -138,6 +149,7 @@
 **목표:** SPEC §4.1과 §5의 모든 사용자 액션을 popover에서 직접 수행할 수 있다.
 
 **할 일:**
+
 1. `Views/Timer/TimeDisplayView.swift`
    - Current / Today 두 줄을 동일한 폰트 스타일로 표시 (`formatHHMMSS`)
 2. `Views/Timer/TitleField.swift`
@@ -153,6 +165,7 @@
 5. `PopoverRoot`의 timer 케이스를 `TimerScreen()`으로 교체
 
 **검증 (수동, SPEC §5 시나리오대로):**
+
 - Start → Current/Today 두 줄 모두 증가, 메뉴바 갱신
 - Title 입력 → 타이핑 후 0.5초 이내 디스크 저장 확인 (`state.json` 모니터)
 - Title 비어있으면 input 필드, 입력 후엔 텍스트+편집 아이콘 표시 확인
@@ -168,6 +181,7 @@
 **목표:** SPEC §4.2, §4.3, §7의 모든 표시 규칙이 화면에 그려진다.
 
 **할 일:**
+
 1. `Views/Stats/AverageSummaryView.swift`
    - `StatisticsStore.recentAverage()`를 받아 표시
    - 0개일 때 안내 문구, 7개 미만일 때 sample size 표기
@@ -186,6 +200,7 @@
 6. `PopoverRoot`의 stats 케이스를 `StatsScreen()`으로 교체, detail navigation은 PopoverRoot가 관리
 
 **검증 (수동):**
+
 - 가짜 데이터 시드 (직접 JSON 작성)로 과거 날 3개/8개 상태에서 진입
 - 합산이 SPEC §6.3 규칙대로 맞음 (대소문자 다른 Title은 분리, 공백만 Title은 `(Untitled)`로 묶임)
 - 시간 내림차순 정렬 확인
@@ -199,6 +214,7 @@
 **목표:** 시스템 슬립 시 자동 일시정지, 깨어났을 때 자동 재개 없음 (SPEC §8).
 
 **할 일:**
+
 1. `Services/SleepObserver.swift`
    - 생성자에 `onSleep: () -> Void`, `onWake: () -> Void` 클로저
    - `.willSleepNotification` → `onSleep`, `.didWakeNotification` → `onWake`
@@ -207,6 +223,7 @@
 3. `TimerStore.pause()`가 슬립으로 호출될 때도 `Persistence.saveNow`로 즉시 flush되도록 분기 추가 (인자로 `flushImmediately: Bool`)
 
 **검증 (수동):**
+
 - 스탑워치 실행 중 → 맥북 뚜껑 닫음 → 잠시 후 열기 → 일시정지 상태, 닫혀 있던 시간이 가산되지 않음
 - 깨어나도 자동 재개되지 않음 (사용자가 다시 시작 눌러야 함)
 - `state.json`에 슬립 직전 상태가 저장되어 있음
@@ -218,6 +235,7 @@
 **목표:** SPEC 전체를 손으로 한 바퀴 돌려 회귀가 없는지 확인한다.
 
 **할 일:**
+
 1. SPEC §10 엣지 케이스 표를 체크리스트로 만들어 모두 수동 확인
 2. SPEC §4의 UI 구성 순서/라벨/버튼 명칭(Title, Current, Today, Start, Pause, Resume, Reset, End, Stats)이 모두 일치하는지 검수
 3. 메뉴바 라벨 두 줄 표시 확인: idle → `(Untitled)/00:00:00`, 이름 있음 → 이름/타이머, 긴 이름 → `…` 말줄임
@@ -228,6 +246,7 @@
 8. 코드 컬러: 사용 안 하는 import / 죽은 코드 제거
 
 **검증:**
+
 - SPEC §10 체크리스트 전부 통과
 - 단위 테스트 전부 통과
 - 빌드 경고 0개
@@ -239,6 +258,7 @@
 **목표:** SPEC §3.2의 Space 키 단축키와 §4.1의 자동 포커스 + Return 키 시작 동작이 구현된다.
 
 **할 일:**
+
 1. `Views/Timer/TitleField.swift`
    - `@FocusState`를 추가하고 `TimerStore`가 idle 상태일 때 자동 포커스 획득
    - `.onSubmit` 핸들러: `TimerStore.start()` 호출 후 `@Environment(\.dismiss)`로 Popover 닫기
@@ -250,6 +270,7 @@
      - idle → 이벤트 통과, 텍스트 필드가 공백 문자로 처리
 
 **검증 (수동):**
+
 - Popover를 열면 idle 상태일 때 Title 입력 필드에 커서(커서 깜빡임)가 자동으로 들어옴
 - idle, Title 입력 필드 포커스 상태에서 Space 키 → 필드에 공백 입력만 됨 (타이머 제어 없음)
 - idle, Title 입력 필드 포커스 상태에서 Return 키 → 세션 시작 + Popover 닫힘

@@ -53,6 +53,8 @@ struct TitleField: View {
                     return
                 }
                 timerStore.start()
+                // start()가 빈 이름으로 세션을 만들므로 입력된 텍스트를 즉시 전달
+                timerStore.updateActiveSessionName(text)
                 dismiss()
             }
     }

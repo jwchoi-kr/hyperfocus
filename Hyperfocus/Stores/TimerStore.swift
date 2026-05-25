@@ -15,6 +15,7 @@ final class TimerStore {
 
     private var lastTickAt: Date?
     private var timerCancellable: AnyCancellable?
+    private var rolloverCancellable: AnyCancellable?
     private let clock: ClockProtocol
 
     var currentSessionDuration: TimeInterval {
@@ -102,6 +103,17 @@ final class TimerStore {
         onStateChanged?()
     }
 
+    /// 앱 시작·wake 시 호출. 마지막 저장 하루의 새벽 6시 경계를 넘었으면 자동 마감 수행.
+    /// 마감 후 다음 새벽 6시로 인앱 롤오버 타이머를 재스케줄한다 (SPEC §5.5).
+    func checkAndPerformRollover() {
+        let now = clock.now
+        let boundary = next6AM(after: currentDay.startedAt)
+        if now >= boundary {
+            performRollover(closingAt: boundary)
+        }
+        scheduleNextRollover()
+    }
+
     // MARK: - Private
 
     private func pauseInternal(saveImmediately: Bool) {
@@ -112,6 +124,61 @@ final class TimerStore {
 
         logger.info("Timer paused (immediate=\(saveImmediately))")
         onStateChanged?()
+    }
+
+    private func performRollover(closingAt boundary: Date) {
+        if isRunning {
+            pauseInternal(saveImmediately: false)
+        }
+        commitActiveSessionIfNeeded()
+
+        var closed = currentDay
+        closed.endedAt = boundary
+
+        if !closed.isEmpty {
+            onDayClosed?(closed)
+            logger.info("Rollover: day closed with \(closed.sessions.count) sessions at \(boundary)")
+        } else {
+            logger.info("Rollover: empty day discarded")
+        }
+
+        currentDay = Day(startedAt: boundary)
+        activeSession = nil
+        lastTickAt = nil
+
+        logger.info("Rollover complete → idle")
+        onStateChanged?()
+    }
+
+    private func scheduleNextRollover() {
+        rolloverCancellable?.cancel()
+        let now = clock.now
+        let next = next6AM(after: now)
+        let delay = next.timeIntervalSince(now)
+        rolloverCancellable = Just(())
+            .delay(for: .seconds(delay), scheduler: RunLoop.main)
+            .sink { [weak self] _ in
+                guard let self else { return }
+                self.performRollover(closingAt: self.next6AM(after: self.currentDay.startedAt))
+                self.scheduleNextRollover()
+            }
+        logger.info("Next rollover scheduled in \(Int(delay))s")
+    }
+
+    /// currentDay.startedAt 이후의 첫 새벽 6시를 반환한다.
+    private func next6AM(after date: Date) -> Date {
+        var cal = Calendar.current
+        cal.timeZone = TimeZone.current
+        var components = cal.dateComponents([.year, .month, .day], from: date)
+        components.hour = 6
+        components.minute = 0
+        components.second = 0
+        let sameDay6AM = cal.date(from: components)!
+        // date가 이미 6시 이후라면 다음 날 6시
+        if sameDay6AM > date {
+            return sameDay6AM
+        }
+        return cal.date(byAdding: .day, value: 1, to: sameDay6AM)!
     }
 
     private func commitActiveSessionIfNeeded() {

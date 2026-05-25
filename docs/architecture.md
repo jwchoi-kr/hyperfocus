@@ -1,6 +1,6 @@
 # Hyperfocus 아키텍처
 
-이 문서는 [SPEC.md](./SPEC.md)에 정의된 동작을 구현하기 위해 사용할 기술 스택과
+이 문서는 [spec.md](./spec.md)에 정의된 동작을 구현하기 위해 사용할 기술 스택과
 프로젝트의 코드 구조를 정의한다. 구현 디테일(함수 시그니처 등)은 코드에 맡기고,
 이 문서는 "어떤 기술로, 어떤 레이어 구분으로 만들지"까지만 다룬다.
 
@@ -9,22 +9,26 @@
 ## 1. 기술 스택
 
 ### 1.1 언어 / UI 프레임워크
+
 - **Swift** (최신 안정 버전)
 - **SwiftUI** — UI 전반
 - **AppKit** — SwiftUI로 직접 다루기 어려운 macOS 시스템 이벤트(슬립 알림 등) 처리에만 보조적으로 사용
 
 ### 1.2 메뉴바 통합
+
 - **`MenuBarExtra`** (SwiftUI, macOS 13+) — 메뉴바 라벨 + Popover 컨텐츠를 모두 SwiftUI로 선언
 - Popover처럼 동작시키기 위해 `.menuBarExtraStyle(.window)`를 사용
 - 메인 윈도우는 생성하지 않음. `Info.plist`에서 `LSUIElement = YES`로 Dock/앱 스위처 미노출
 
 ### 1.3 상태 관리
+
 - **Observation 프레임워크의 `@Observable` 매크로** (Swift 5.9+, macOS 14+)
   - 두 개의 store(`TimerStore`, `StatisticsStore`)를 환경 객체로 주입
 - 타이머 tick은 `Timer.publish(every: 1.0, on: .main, in: .common)` 기반.
   실제 경과 시간은 `Date.now - lastTickAt` 차이로 계산하여 시스템 부하 시 드리프트를 보정
 
 ### 1.4 영속화
+
 - 별도 DB 없이 **단일 JSON 파일** (`Codable` 직렬화)
 - 저장 위치: `~/Library/Application Support/Hyperfocus/state.json`
 - 데이터 규모(주기당 수십~수백 세션, 무기한 누적)에서도 JSON 한 파일로 충분
@@ -32,6 +36,7 @@
 - 종료 직전에도 한 번 flush (`NSApplication.willTerminateNotification`)
 
 ### 1.5 시스템 이벤트
+
 - **`NSWorkspace.shared.notificationCenter`**
   - `.willSleepNotification` 구독 → 자동 일시정지
   - `.didWakeNotification` 구독 → 자동 재개 없음(SPEC §8.2), 새벽 6시 경계 초과 여부 확인 후 필요 시 자동 마감 수행 (SPEC §5.5)
@@ -40,15 +45,18 @@
 - **`NSEvent.addLocalMonitorForEvents`** — Popover 컨테이너 레벨의 Space 키 처리 (SPEC §3.2). SwiftUI `.onKeyPress`는 포커스 체인 의존성으로 idle/running 전환 시 신뢰성이 낮아 AppKit 이벤트 모니터를 사용함. TitleField의 Return 키는 SwiftUI `.onSubmit` 사용 (SPEC §4.1)
 
 ### 1.6 외부 의존성
+
 - **없음.** 표준 Apple 프레임워크(Swift, SwiftUI, AppKit, Foundation, Combine, Observation)만 사용
 - 패키지 매니저는 Swift Package Manager를 기본으로 두지만, 현 시점에는 사용처 없음
 
 ### 1.7 빌드 / 배포
+
 - **Xcode 프로젝트** (`.xcodeproj`)로 관리. 빌드 시스템은 `xcodebuild`
 - 배포 타깃: **macOS 14.0+** (Observation 프레임워크 + 최신 `MenuBarExtra` 동작 보장)
 - 코드 사이닝은 개인 사용 단계에서는 "Sign to Run Locally"로 충분
 
 ### 1.8 테스트
+
 - **XCTest** 단위 테스트
 - 우선 대상: 타이머 누적 계산, 세션 합산 로직, 일평균 계산, 영속화 round-trip
 - UI 테스트는 이번 범위에서 제외
@@ -58,19 +66,23 @@
 ## 2. 아키텍처 원칙
 
 ### 2.1 단방향 데이터 흐름
+
 - 사용자 액션 → Store의 메서드 호출 → Store가 상태 변경 → SwiftUI 뷰 자동 갱신 → Persistence가 그 변경을 디스크에 반영
 - 뷰는 상태를 직접 변형하지 않고 항상 Store 메서드를 통한다
 
 ### 2.2 단일 진실의 원천
+
 - "전체 시간"은 별도로 저장하지 않는다. 항상 `현재 주기의 모든 세션 누적 시간 + 진행 중 세션의 누적 시간`으로 파생
 - 이 원칙 덕에 세션 리셋, 전체 리셋 동작이 단순해진다 (계산된 값이 자동으로 맞아떨어짐)
 
 ### 2.3 시간 계산은 벽시계 기준
+
 - 매초 단순 카운트가 아니라, 마지막 tick 시각(`lastTickAt`)과 현재 시각의 차이를 누적
 - 시스템이 잠시 멈췄다 깨어나는 경우(슬립 외 일반 부하) 시간 손실을 막음
 - 슬립 시점에는 의도적으로 일시정지하므로 슬립 구간은 자연히 가산되지 않음
 
 ### 2.4 비-목표 영역
+
 - 동기화/네트워크 없음 → 충돌 해결 로직 없음
 - 마이그레이션은 첫 릴리스에서는 고려 안 함. JSON 스키마에 `schemaVersion` 필드만 미리 박아둠
 
@@ -83,7 +95,7 @@ Xcode 프로젝트 루트: `/Users/jwchoi/Desktop/hyperfocus/Hyperfocus/`
 ```
 hyperfocus/
 ├── docs/
-│   ├── SPEC.md
+│   ├── spec.md
 │   └── architecture.md
 ├── Hyperfocus.xcodeproj/
 └── Hyperfocus/
@@ -133,15 +145,16 @@ HyperfocusTests/
 
 ### 3.1 레이어 책임 요약
 
-| 레이어 | 폴더 | 책임 | 외부에 노출하는 것 |
-| --- | --- | --- | --- |
-| Models | `Models/` | 도메인 데이터의 형태 정의. 로직 없음. `Codable` | 값 타입(struct) |
-| Stores | `Stores/` | 도메인 로직 + 상태 보유. `@Observable` | 액션 메서드, 파생 프로퍼티 |
-| Services | `Services/` | 외부 세계와의 경계 (디스크, 시스템 알림, 시계) | 프로토콜 + 기본 구현 |
-| Views | `Views/` | 화면 렌더링. 상태를 읽고 Store 메서드만 호출 | SwiftUI View |
-| Utilities | `Utilities/` | 순수 함수성 헬퍼 (포매팅, 합산) | 함수/extension |
+| 레이어    | 폴더         | 책임                                            | 외부에 노출하는 것         |
+| --------- | ------------ | ----------------------------------------------- | -------------------------- |
+| Models    | `Models/`    | 도메인 데이터의 형태 정의. 로직 없음. `Codable` | 값 타입(struct)            |
+| Stores    | `Stores/`    | 도메인 로직 + 상태 보유. `@Observable`          | 액션 메서드, 파생 프로퍼티 |
+| Services  | `Services/`  | 외부 세계와의 경계 (디스크, 시스템 알림, 시계)  | 프로토콜 + 기본 구현       |
+| Views     | `Views/`     | 화면 렌더링. 상태를 읽고 Store 메서드만 호출    | SwiftUI View               |
+| Utilities | `Utilities/` | 순수 함수성 헬퍼 (포매팅, 합산)                 | 함수/extension             |
 
 ### 3.2 의존 방향
+
 - `Views` → `Stores` → `Services`, `Models`
 - `Stores`는 `Services`를 **프로토콜로** 의존 (테스트에서 교체 가능)
 - `Views`는 `Services`를 직접 모르고, 오직 `Stores`만 본다
@@ -152,6 +165,7 @@ HyperfocusTests/
 ## 4. 주요 컴포넌트 책임 상세
 
 ### 4.1 `HyperfocusApp`
+
 - `@main`. `MenuBarExtra`를 선언하고 그 안에 `PopoverRoot`를 둔다
 - 앱 시작 시 `Persistence`로부터 상태를 로드하여 `TimerStore`/`StatisticsStore`에 주입
 - 상태 로드 직후 `TimerStore.checkAndPerformRollover()`를 호출 — 앱 종료 중 새벽 6시를 넘긴 경우 처리 (SPEC §5.5)
@@ -159,6 +173,7 @@ HyperfocusTests/
 - `SleepObserver`를 띄워 `TimerStore.pause()`(onSleep)와 `TimerStore.checkAndPerformRollover()`(onWake)에 연결
 
 ### 4.2 `TimerStore`
+
 - 보유 상태: `currentDay: Day`, `activeSession: Session?`, `isRunning: Bool`, `lastTickAt: Date?`
 - 타이머 상태는 3가지:
   - **idle**: `activeSession == nil, isRunning == false` → `Start` 버튼
@@ -175,6 +190,7 @@ HyperfocusTests/
 - 상태가 바뀔 때마다 `onStateChanged?()` 콜백 호출 → `HyperfocusApp`이 `Persistence.requestSave()` 실행
 
 ### 4.3 `StatisticsStore`
+
 - 보유 상태: `pastDays: [Day]` (시간 역순 정렬 가정)
 - `TimerStore.endDay()` 호출 시점에 `onDayClosed` 콜백으로 마감 하루를 받음 (빈 하루는 push하지 않음)
 - 파생: `recentAverage(count: Int)` — SPEC §7.3 일평균 계산
@@ -182,22 +198,26 @@ HyperfocusTests/
 - 진행 중 세션 포함 버전: `aggregatedSessionsIncluding(day:active:)` — 오늘 카드에서 사용
 
 ### 4.4 `Persistence`
+
 - 단일 JSON 파일 입출력. 첫 실행 시 빈 상태 반환
 - `requestSave()`는 디바운스: 짧은 시간 내 다회 호출 시 마지막 한 번만 디스크 기록
 - 디스크 쓰기는 백그라운드 큐, 실패는 콘솔 로깅 (사용자 알림 없음)
 - 동시성 위험을 최소화하기 위해 메인 액터에서 직렬화된 데이터를 받아 백그라운드에서 쓴다
 
 ### 4.5 `SleepObserver`
+
 - 생성자에 `onSleep: () -> Void`, `onWake: () -> Void` 클로저를 받아 보관
 - `.willSleepNotification` → `onSleep` 호출 (자동 일시정지)
 - `.didWakeNotification` → `onWake` 호출 (롤오버 체크 트리거. 자동 재개 아님)
 - 단순 wrapper. 테스트에선 mock 사용
 
 ### 4.6 `Clock`
+
 - `protocol ClockProtocol { var now: Date { get } }`. 기본 구현은 `struct SystemClock`으로 `Date()` 반환
 - `TimerStore` 테스트에서 시간을 임의로 흘리기 위해 도입 (`MockClock`으로 교체)
 
 ### 4.7 View 레이어
+
 - 모든 뷰는 `@Environment`로 Store를 주입받는다 (private state 최소화)
 - `MenuBarLabel`은 `currentSessionDuration`과 `activeSession?.name`을 읽는다. **항상 이름(위) + 타이머(아래) 두 줄로 표시** (SPEC §3.1). 이름이 없거나 공백이면 `(Untitled)` 표시, idle이면 타이머는 `00:00:00`. 아이콘 전환 없음. 구현은 `NSImage`에 두 줄을 직접 그려 반환하는 방식(`isTemplate = true`로 라이트/다크 자동 대응). 이름이 타이머(`HH:MM:SS`) 텍스트 너비를 초과하면 `…` 말줄임. 메뉴바 아이템 너비는 타이머 너비+여백으로 고정.
 - `PopoverRoot`는 두 화면 사이 전환만 담당. 화면별 로직은 각 Screen에 둠
@@ -211,6 +231,7 @@ HyperfocusTests/
 ## 5. 데이터 흐름 시나리오
 
 ### 5.1 시작 버튼 클릭
+
 ```
 TimerControls (View)
   → TimerStore.start()
@@ -222,6 +243,7 @@ TimerControls (View)
 ```
 
 ### 5.2 매 1초 tick
+
 ```
 Timer.publish
   → TimerStore의 tick 핸들러
@@ -234,6 +256,7 @@ Timer.publish
 ```
 
 ### 5.3 세션 리셋
+
 ```
 TimerControls (View)
   → TimerStore.resetSession()
@@ -246,6 +269,7 @@ TimerControls (View)
 ```
 
 ### 5.4 End (하루 마감)
+
 ```
 TimerControls (End 버튼)
   → TimerStore.endDay()
@@ -258,6 +282,7 @@ TimerControls (End 버튼)
 ```
 
 ### 5.5 시스템 슬립
+
 ```
 NSWorkspace.willSleepNotification
   → SleepObserver onSleep
@@ -267,6 +292,7 @@ NSWorkspace.willSleepNotification
 ```
 
 ### 5.6 앱 재시작
+
 ```
 HyperfocusApp.init
   → Persistence.load() → PersistedState
@@ -279,6 +305,7 @@ HyperfocusApp.init
 ```
 
 ### 5.7 Space 키 — running → pause (Popover 유지)
+
 ```
 Popover 열린 상태, running 중, TitleField 외 포커스
   → TimerScreen NSEvent.addLocalMonitorForEvents(.keyDown) 수신 (Space, 텍스트 필드 포커스 없음)
@@ -290,6 +317,7 @@ Popover 열린 상태, running 중, TitleField 외 포커스
 ```
 
 ### 5.8 Space 키 — paused → resume + Popover 닫힘
+
 ```
 Popover 열린 상태, paused 중, TitleField 외 포커스
   → TimerScreen NSEvent.addLocalMonitorForEvents(.keyDown) 수신 (Space, 텍스트 필드 포커스 없음)
@@ -301,6 +329,7 @@ Popover 열린 상태, paused 중, TitleField 외 포커스
 ```
 
 ### 5.9 Return 키 — idle, Title 입력 필드 포커스 → start + Popover 닫힘
+
 ```
 Popover 열린 상태, idle, Title 입력 필드 포커스
   → TitleField .onSubmit 수신
@@ -313,6 +342,7 @@ Popover 열린 상태, idle, Title 입력 필드 포커스
 ```
 
 ### 5.10 새벽 6시 자동 마감
+
 ```
 [앱 실행 중] 스케줄된 Timer가 새벽 6시에 발화
   → TimerStore.checkAndPerformRollover()
@@ -387,16 +417,16 @@ UI/시스템 통합(메뉴바 표시, 슬립 알림 발화)은 수동 검증 영
 
 ## 8. 향후 변경 시 영향 범위 가이드
 
-| 바꾸고 싶은 것 | 손대야 할 곳 |
-| --- | --- |
-| 시간 표시 형식 변경 | `Utilities/TimeFormatting.swift` 한 군데 |
-| 일평균 기준 기간 변경 (7개 → 30개 등) | `StatisticsStore.recentAverage`의 기본 인자 |
-| 자동 재개 활성화 | `SleepObserver.onWake`에서 `TimerStore.start()` 호출 추가 |
-| 자동 마감 경계 시각 변경 (새벽 6시 → 자정 등) | `TimerStore.checkAndPerformRollover()`의 경계 시각 계산 로직 |
-| 다른 저장 포맷 (SQLite 등) | `Services/Persistence.swift`만 교체. Store/View 변경 없음 |
-| 통계 화면에 차트 추가 | `Views/Stats/` 하위에 새 컴포넌트 추가, Store 변경 불필요 |
-| 타이머 상태 구분(idle/running/paused) 변경 | `TimerStore.swift` 액션 로직(`start/pause/resetSession/resetTotal`) + `TimerControls.swift` 버튼 분기 |
-| 팝오버 키보드 단축키 동작 변경 | `Views/Timer/TimerScreen.swift`(Space 처리), `Views/Timer/TitleField.swift`(Return + 자동 포커스), SPEC §3.2 |
-| Title 필드 모드 전환(입력↔표시) 동작 변경 | `Views/Timer/TitleField.swift`(모드 전환 로직), SPEC §4.1 |
-| 타이머 화면 버튼 레이아웃 변경 | `Views/Timer/TimerControls.swift`(버튼 배치), SPEC §4.1 |
-| 메뉴바 라벨 표시 방식 변경 (두 줄 레이아웃, 이름/타이머 폰트 크기, 말줄임 너비 등) | `Views/MenuBarLabel.swift`, SPEC §3.1 |
+| 바꾸고 싶은 것                                                                     | 손대야 할 곳                                                                                                 |
+| ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| 시간 표시 형식 변경                                                                | `Utilities/TimeFormatting.swift` 한 군데                                                                     |
+| 일평균 기준 기간 변경 (7개 → 30개 등)                                              | `StatisticsStore.recentAverage`의 기본 인자                                                                  |
+| 자동 재개 활성화                                                                   | `SleepObserver.onWake`에서 `TimerStore.start()` 호출 추가                                                    |
+| 자동 마감 경계 시각 변경 (새벽 6시 → 자정 등)                                      | `TimerStore.checkAndPerformRollover()`의 경계 시각 계산 로직                                                 |
+| 다른 저장 포맷 (SQLite 등)                                                         | `Services/Persistence.swift`만 교체. Store/View 변경 없음                                                    |
+| 통계 화면에 차트 추가                                                              | `Views/Stats/` 하위에 새 컴포넌트 추가, Store 변경 불필요                                                    |
+| 타이머 상태 구분(idle/running/paused) 변경                                         | `TimerStore.swift` 액션 로직(`start/pause/resetSession/resetTotal`) + `TimerControls.swift` 버튼 분기        |
+| 팝오버 키보드 단축키 동작 변경                                                     | `Views/Timer/TimerScreen.swift`(Space 처리), `Views/Timer/TitleField.swift`(Return + 자동 포커스), SPEC §3.2 |
+| Title 필드 모드 전환(입력↔표시) 동작 변경                                          | `Views/Timer/TitleField.swift`(모드 전환 로직), SPEC §4.1                                                    |
+| 타이머 화면 버튼 레이아웃 변경                                                     | `Views/Timer/TimerControls.swift`(버튼 배치), SPEC §4.1                                                      |
+| 메뉴바 라벨 표시 방식 변경 (두 줄 레이아웃, 이름/타이머 폰트 크기, 말줄임 너비 등) | `Views/MenuBarLabel.swift`, SPEC §3.1                                                                        |

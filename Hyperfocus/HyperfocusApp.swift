@@ -20,6 +20,9 @@ struct HyperfocusApp: App {
         self.statsStore = stats
         self.timerStore = timer
 
+        // Catch up on any 6am rollovers that happened while app was closed
+        timer.checkAndPerformRollover()
+
         // Wire day-closed callback
         timer.onDayClosed = { [weak stats] day in
             stats?.appendClosedDay(day)
@@ -36,18 +39,24 @@ struct HyperfocusApp: App {
             ))
         }
 
-        // Auto-pause and immediate flush before system sleep
-        self.sleepObserver = SleepObserver { [weak timer, weak stats] in
-            guard let t = timer else { return }
-            t.pauseForSleep()
-            guard let s = stats else { return }
-            p.saveNow(PersistedState(
-                currentDay: t.currentDay,
-                pastDays: s.pastDays,
-                activeSession: t.activeSession
-            ))
-            logger.info("State flushed before sleep")
-        }
+        // Auto-pause and immediate flush before system sleep; rollover check on wake
+        self.sleepObserver = SleepObserver(
+            onSleep: { [weak timer, weak stats] in
+                guard let t = timer else { return }
+                t.pauseForSleep()
+                guard let s = stats else { return }
+                p.saveNow(PersistedState(
+                    currentDay: t.currentDay,
+                    pastDays: s.pastDays,
+                    activeSession: t.activeSession
+                ))
+                logger.info("State flushed before sleep")
+            },
+            onWake: { [weak timer] in
+                timer?.checkAndPerformRollover()
+                logger.info("Rollover check on wake")
+            }
+        )
 
         // Final flush on quit
         NotificationCenter.default.addObserver(
