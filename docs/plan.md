@@ -117,8 +117,10 @@
    - `.menuBarExtraStyle(.window)` 적용
    - 종료 시 `Persistence.saveNow` 훅
 2. `Views/MenuBarLabel.swift`
-   - 항상 `HH:MM:SS` 텍스트로 표시 — idle이면 `00:00:00`. 아이콘 전환 없음 (SPEC §3.1)
-   - `Text(formatHHMMSS(currentSessionDuration))`, `monospacedDigit()` + 고정 너비 frame
+   - 항상 이름(위) + 타이머(아래) 두 줄로 표시. 아이콘 전환 없음 (SPEC §3.1)
+   - 이름이 없거나 공백이면 `(Untitled)` 표시, idle이면 타이머는 `00:00:00`
+   - `NSImage`에 두 줄 직접 드로잉, `isTemplate = true`로 라이트/다크 자동 대응
+   - 이름이 타이머(`HH:MM:SS`) 너비 초과 시 `…` 말줄임. 아이템 너비는 타이머 너비+여백으로 고정
 3. `Views/PopoverRoot.swift`
    - 내부 상태로 현재 화면(`timer` / `stats`) 보관
    - 두 placeholder 뷰만 두고 화면 전환 토글 동작 확인
@@ -218,11 +220,12 @@
 **할 일:**
 1. SPEC §10 엣지 케이스 표를 체크리스트로 만들어 모두 수동 확인
 2. SPEC §4의 UI 구성 순서/라벨/버튼 명칭(Title, Current, Today, Start, Pause, Resume, Reset, End, Stats)이 모두 일치하는지 검수
-3. 메뉴바 라벨 폭 안정성 한 번 더 확인 (1자리 시→10자리 시 전환 시 다른 메뉴바 아이콘 움직임 없음)
-4. 앱 종료 후 재시작 시 SPEC §9대로 일시정지 상태로 복원되는지 확인
-5. 빈 상태 / 첫 실행 경험 한 번 더 검수
-6. README 한 줄이라도 추가 (실행 방법, SPEC/architecture/plan 문서 링크)
-7. 코드 컬러: 사용 안 하는 import / 죽은 코드 제거
+3. 메뉴바 라벨 두 줄 표시 확인: idle → `(Untitled)/00:00:00`, 이름 있음 → 이름/타이머, 긴 이름 → `…` 말줄임
+4. 메뉴바 라벨 폭 안정성 한 번 더 확인 (1자리 시→10자리 시 전환 시 다른 메뉴바 아이콘 움직임 없음)
+5. 앱 종료 후 재시작 시 SPEC §9대로 일시정지 상태로 복원되는지 확인
+6. 빈 상태 / 첫 실행 경험 한 번 더 검수
+7. README 한 줄이라도 추가 (실행 방법, SPEC/architecture/plan 문서 링크)
+8. 코드 컬러: 사용 안 하는 import / 죽은 코드 제거
 
 **검증:**
 - SPEC §10 체크리스트 전부 통과

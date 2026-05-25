@@ -93,7 +93,7 @@ hyperfocus/
     │
     ├── Models/
     │   ├── Session.swift              # 세션 (id, name, duration, startedAt)
-    │   ├── Cycle.swift                # 주기 (id, startedAt, endedAt?, sessions[])
+    │   ├── Day.swift                  # 하루 (id, startedAt, endedAt?, sessions[])
     │   └── PersistedState.swift       # 디스크 저장용 루트 구조 + schemaVersion
     │
     ├── Stores/
@@ -106,7 +106,7 @@ hyperfocus/
     │   └── Clock.swift                # Date.now 추상화 (테스트 시 교체용)
     │
     ├── Views/
-    │   ├── MenuBarLabel.swift         # 메뉴바 라벨 (아이콘 / 시간 텍스트 토글)
+    │   ├── MenuBarLabel.swift         # 메뉴바 라벨 (항상 이름+타이머 두 줄)
     │   ├── PopoverRoot.swift          # 타이머 ↔ 통계 화면 스위처
     │   ├── Timer/
     │   │   ├── TimerScreen.swift      # 타이머 화면 컨테이너
@@ -116,9 +116,9 @@ hyperfocus/
     │   └── Stats/
     │       ├── StatsScreen.swift      # 통계 화면 컨테이너 (요약 + 목록)
     │       ├── AverageSummaryView.swift
-    │       ├── CurrentCycleCardView.swift
-    │       ├── PastCycleRowView.swift
-    │       └── CycleDetailView.swift  # 과거 주기 상세 (이름별 합산)
+    │       ├── CurrentDayCardView.swift
+    │       ├── PastDayRowView.swift
+    │       └── DayDetailView.swift    # 과거 하루 상세 (이름별 합산)
     │
     └── Utilities/
         ├── TimeFormatting.swift       # "HH:MM:SS", "5h 42m" 포매터
@@ -199,12 +199,11 @@ HyperfocusTests/
 
 ### 4.7 View 레이어
 - 모든 뷰는 `@Environment`로 Store를 주입받는다 (private state 최소화)
-- `MenuBarLabel`은 `currentSessionDuration`만 본다. **항상 `HH:MM:SS` 텍스트로 표시** (idle이면 `00:00:00`). 아이콘 전환 없음 (SPEC §3.1). 구현은 `NSImage`에 텍스트를 그려 반환하는 방식(`isTemplate = true`로 라이트/다크 자동 대응)
-- 시간 텍스트는 `monospacedDigit()` 폰트 modifier + 고정 너비 frame으로 메뉴바 흔들림 방지
+- `MenuBarLabel`은 `currentSessionDuration`과 `activeSession?.name`을 읽는다. **항상 이름(위) + 타이머(아래) 두 줄로 표시** (SPEC §3.1). 이름이 없거나 공백이면 `(Untitled)` 표시, idle이면 타이머는 `00:00:00`. 아이콘 전환 없음. 구현은 `NSImage`에 두 줄을 직접 그려 반환하는 방식(`isTemplate = true`로 라이트/다크 자동 대응). 이름이 타이머(`HH:MM:SS`) 텍스트 너비를 초과하면 `…` 말줄임. 메뉴바 아이템 너비는 타이머 너비+여백으로 고정.
 - `PopoverRoot`는 두 화면 사이 전환만 담당. 화면별 로직은 각 Screen에 둠
 - `DayDetailView`는 `StatisticsStore.aggregatedSessions(of:)`만 호출해서 표시
 - `TitleField`는 두 모드를 가진다: **입력 모드**(Title이 비어 있을 때 — `TextField`) 와 **표시 모드**(Title이 있을 때 — 텍스트 + 편집 아이콘). 편집 아이콘을 누르면 입력 모드로 전환된다. `@FocusState`를 보유하고, idle 상태로 전환될 때 자동 포커스를 획득한다. `.onSubmit` 핸들러에서 `TimerStore.start()`를 호출하고 `@Environment(\.dismiss)`로 Popover를 닫는다
-- `TimerControls`는 기본 컨트롤 영역(Start / Pause+Reset / Resume+Reset)과 항상 표시되는 보조 영역(End+Stats)을 모두 포함한다. End 버튼은 확인 다이얼로그 후 `TimerStore.endDay()`를 호출하고, Stats 버튼은 `PopoverRoot`에서 주입받은 콜백으로 화면 전환을 트리거한다
+- `TimerControls`는 기본 컨트롤 영역(Start / Pause+Reset / Resume+Reset)과 항상 표시되는 보조 영역(End+Stats)을 모두 포함한다. End 버튼은 `TimerStore.endDay()`를 직접 호출하고, Stats 버튼은 `PopoverRoot`에서 주입받은 콜백으로 화면 전환을 트리거한다
 - `TimerScreen`은 `.onKeyPress(.space)` modifier를 통해 Space 키를 가로챈다. running이면 `TimerStore.pause()` 후 Popover 유지, paused이면 `TimerStore.start()` 후 `dismiss()` 호출. idle이거나 텍스트 필드에 포커스가 있으면 처리하지 않는다(SwiftUI 포커스 시스템이 자연히 텍스트 필드로 Space를 라우팅)
 
 ---
@@ -249,11 +248,11 @@ TimerControls (View)
 ### 5.4 End (하루 마감)
 ```
 TimerControls (End 버튼)
-  → TimerStore.resetTotal()
-    - activeSession이 있고 duration > 0이면 currentCycle.sessions에 append
-    - currentCycle.endedAt = Date.now
-    - onCycleClosed?(currentCycle) → StatisticsStore.appendClosedCycle() (단, 빈 주기면 skip)
-    - currentCycle = 새 빈 Cycle, activeSession = nil, isRunning = false
+  → TimerStore.endDay()
+    - activeSession이 있고 duration > 0이면 currentDay.sessions에 append
+    - currentDay.endedAt = Date.now
+    - onDayClosed?(currentDay) → StatisticsStore.appendClosedDay() (단, 빈 하루면 skip)
+    - currentDay = 새 빈 Day, activeSession = nil, isRunning = false
     - onStateChanged?() → Persistence.requestSave()
   → 모든 화면 자동 갱신, MenuBarLabel은 00:00:00 텍스트 유지
 ```
@@ -271,17 +270,18 @@ NSWorkspace.willSleepNotification
 ```
 HyperfocusApp.init
   → Persistence.load() → PersistedState
-  → TimerStore(currentCycle:activeSession:) 초기화, isRunning은 항상 false (SPEC §9)
-  → StatisticsStore(pastCycles:) 초기화
-  → onCycleClosed / onStateChanged 콜백 연결
-  → SleepObserver 시작
+  → TimerStore(currentDay:activeSession:) 초기화, isRunning은 항상 false (SPEC §9)
+  → StatisticsStore(pastDays:) 초기화
+  → onDayClosed / onStateChanged 콜백 연결
+  → timerStore.checkAndPerformRollover() 호출 (앱 종료 중 새벽 6시를 넘긴 경우 처리)
+  → SleepObserver(onSleep:onWake:) 시작
   → MenuBarExtra 표시
 ```
 
 ### 5.7 Space 키 — running → pause (Popover 유지)
 ```
 Popover 열린 상태, running 중, TitleField 외 포커스
-  → TimerScreen .onKeyPress(.space) 수신
+  → TimerScreen NSEvent.addLocalMonitorForEvents(.keyDown) 수신 (Space, 텍스트 필드 포커스 없음)
   → TimerStore.pause()
     - isRunning = false, Timer 구독 해제
     - Persistence.requestSave()
@@ -291,8 +291,8 @@ Popover 열린 상태, running 중, TitleField 외 포커스
 
 ### 5.8 Space 키 — paused → resume + Popover 닫힘
 ```
-Popover 열린 상태, paused 중
-  → TimerScreen .onKeyPress(.space) 수신
+Popover 열린 상태, paused 중, TitleField 외 포커스
+  → TimerScreen NSEvent.addLocalMonitorForEvents(.keyDown) 수신 (Space, 텍스트 필드 포커스 없음)
   → TimerStore.start()
     - isRunning = true, lastTickAt = Date.now
     - Persistence.requestSave()
@@ -399,3 +399,4 @@ UI/시스템 통합(메뉴바 표시, 슬립 알림 발화)은 수동 검증 영
 | 팝오버 키보드 단축키 동작 변경 | `Views/Timer/TimerScreen.swift`(Space 처리), `Views/Timer/TitleField.swift`(Return + 자동 포커스), SPEC §3.2 |
 | Title 필드 모드 전환(입력↔표시) 동작 변경 | `Views/Timer/TitleField.swift`(모드 전환 로직), SPEC §4.1 |
 | 타이머 화면 버튼 레이아웃 변경 | `Views/Timer/TimerControls.swift`(버튼 배치), SPEC §4.1 |
+| 메뉴바 라벨 표시 방식 변경 (두 줄 레이아웃, 이름/타이머 폰트 크기, 말줄임 너비 등) | `Views/MenuBarLabel.swift`, SPEC §3.1 |
