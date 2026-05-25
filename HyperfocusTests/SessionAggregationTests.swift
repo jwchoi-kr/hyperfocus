@@ -34,13 +34,13 @@ final class SessionAggregationTests: XCTestCase {
     func test_emptyName_normalizedToUnnamed() {
         let s = Session(name: "", duration: 50)
         let result = aggregateSessions([s])
-        XCTAssertEqual(result[0].name, "(이름 없음)")
+        XCTAssertEqual(result[0].name, "(Untitled)")
     }
 
     func test_whitespaceOnlyName_normalizedToUnnamed() {
         let s = Session(name: "   ", duration: 50)
         let result = aggregateSessions([s])
-        XCTAssertEqual(result[0].name, "(이름 없음)")
+        XCTAssertEqual(result[0].name, "(Untitled)")
     }
 
     func test_multipleUnnamedSessions_mergedIntoOne() {
@@ -48,7 +48,7 @@ final class SessionAggregationTests: XCTestCase {
         let s2 = Session(name: "   ", duration: 20)
         let result = aggregateSessions([s1, s2])
         XCTAssertEqual(result.count, 1)
-        XCTAssertEqual(result[0].name, "(이름 없음)")
+        XCTAssertEqual(result[0].name, "(Untitled)")
         XCTAssertEqual(result[0].totalDuration, 50)
     }
 

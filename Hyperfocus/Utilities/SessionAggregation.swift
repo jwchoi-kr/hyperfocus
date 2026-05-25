@@ -19,5 +19,5 @@ func aggregateSessions(_ sessions: [Session]) -> [AggregatedSession] {
 
 func normalizedSessionName(_ raw: String) -> String {
     let trimmed = raw.trimmingCharacters(in: .whitespaces)
-    return trimmed.isEmpty ? "(이름 없음)" : trimmed
+    return trimmed.isEmpty ? "(Untitled)" : trimmed
 }

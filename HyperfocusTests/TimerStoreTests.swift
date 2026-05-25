@@ -195,13 +195,13 @@ final class TimerStoreTests: XCTestCase {
     func test_resetSession_blankNameBecomesUnnamed() {
         let store = makeStore(activeSession: Session(name: "   ", duration: 10))
         store.resetSession()
-        XCTAssertEqual(store.currentCycle.sessions[0].name, "(이름 없음)")
+        XCTAssertEqual(store.currentCycle.sessions[0].name, "(Untitled)")
     }
 
     func test_resetSession_emptyNameBecomesUnnamed() {
         let store = makeStore(activeSession: Session(name: "", duration: 10))
         store.resetSession()
-        XCTAssertEqual(store.currentCycle.sessions[0].name, "(이름 없음)")
+        XCTAssertEqual(store.currentCycle.sessions[0].name, "(Untitled)")
     }
 
     // MARK: - updateActiveSessionName

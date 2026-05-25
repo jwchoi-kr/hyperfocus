@@ -21,7 +21,7 @@
 		AA000000000000000000020B /* MenuBarLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000010B /* MenuBarLabel.swift */; };
 		AA000000000000000000020C /* PopoverRoot.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000010C /* PopoverRoot.swift */; };
 		AA000000000000000000020D /* TimeDisplayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000010D /* TimeDisplayView.swift */; };
-		AA000000000000000000020E /* SessionNameField.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000010E /* SessionNameField.swift */; };
+		AA000000000000000000020E /* TitleField.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000010E /* TitleField.swift */; };
 		AA000000000000000000020F /* TimerControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000010F /* TimerControls.swift */; };
 		AA0000000000000000000210 /* TimerScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000110 /* TimerScreen.swift */; };
 		AA0000000000000000000211 /* AverageSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000111 /* AverageSummaryView.swift */; };
@@ -55,7 +55,7 @@
 		AA000000000000000000010B /* MenuBarLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarLabel.swift; sourceTree = "<group>"; };
 		AA000000000000000000010C /* PopoverRoot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopoverRoot.swift; sourceTree = "<group>"; };
 		AA000000000000000000010D /* TimeDisplayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeDisplayView.swift; sourceTree = "<group>"; };
-		AA000000000000000000010E /* SessionNameField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionNameField.swift; sourceTree = "<group>"; };
+		AA000000000000000000010E /* TitleField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TitleField.swift; sourceTree = "<group>"; };
 		AA000000000000000000010F /* TimerControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerControls.swift; sourceTree = "<group>"; };
 		AA0000000000000000000110 /* TimerScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerScreen.swift; sourceTree = "<group>"; };
 		AA0000000000000000000111 /* AverageSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AverageSummaryView.swift; sourceTree = "<group>"; };
@@ -184,7 +184,7 @@
 			isa = PBXGroup;
 			children = (
 				AA000000000000000000010D /* TimeDisplayView.swift */,
-				AA000000000000000000010E /* SessionNameField.swift */,
+				AA000000000000000000010E /* TitleField.swift */,
 				AA000000000000000000010F /* TimerControls.swift */,
 				AA0000000000000000000110 /* TimerScreen.swift */,
 			);
@@ -337,7 +337,7 @@
 				AA000000000000000000020B /* MenuBarLabel.swift in Sources */,
 				AA000000000000000000020C /* PopoverRoot.swift in Sources */,
 				AA000000000000000000020D /* TimeDisplayView.swift in Sources */,
-				AA000000000000000000020E /* SessionNameField.swift in Sources */,
+				AA000000000000000000020E /* TitleField.swift in Sources */,
 				AA000000000000000000020F /* TimerControls.swift in Sources */,
 				AA0000000000000000000210 /* TimerScreen.swift in Sources */,
 				AA0000000000000000000211 /* AverageSummaryView.swift in Sources */,

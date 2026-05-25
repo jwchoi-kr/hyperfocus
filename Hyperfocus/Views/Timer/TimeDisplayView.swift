@@ -1,18 +1,23 @@
 import SwiftUI
 
 struct TimeDisplayView: View {
-    let label: String
-    let duration: TimeInterval
-    let large: Bool
+    let currentDuration: TimeInterval
+    let totalDuration: TimeInterval
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
+        VStack(alignment: .leading, spacing: 4) {
+            row(label: "Current", duration: currentDuration)
+            row(label: "Today", duration: totalDuration)
+        }
+    }
+
+    private func row(label: String, duration: TimeInterval) -> some View {
+        HStack(spacing: 0) {
             Text(label)
-                .font(.caption)
-                .foregroundStyle(.secondary)
+                .frame(width: 70, alignment: .leading)
             Text(formatHHMMSS(duration))
-                .font(large ? .system(size: 44, weight: .thin, design: .monospaced) : .title2.monospacedDigit())
                 .monospacedDigit()
         }
+        .font(.system(size: 15, weight: .regular, design: .default))
     }
 }

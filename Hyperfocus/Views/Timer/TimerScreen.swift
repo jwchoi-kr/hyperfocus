@@ -10,27 +10,14 @@ struct TimerScreen: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
+            TitleField()
+
             TimeDisplayView(
-                label: "현재 세션",
-                duration: timerStore.currentSessionDuration,
-                large: true
-            )
-            TimeDisplayView(
-                label: "전체",
-                duration: timerStore.totalDuration,
-                large: false
+                currentDuration: timerStore.currentSessionDuration,
+                totalDuration: timerStore.totalDuration
             )
 
-            Divider()
-
-            SessionNameField()
-            TimerControls()
-
-            Divider()
-
-            Button("통계 보기") { onShowStats() }
-                .frame(maxWidth: .infinity)
-                .padding(.bottom, 2)
+            TimerControls(onShowStats: onShowStats)
         }
         .padding()
         .onAppear { setupSpaceKeyMonitor() }
