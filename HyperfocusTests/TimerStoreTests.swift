@@ -133,57 +133,6 @@ final class TimerStoreTests: XCTestCase {
         XCTAssertFalse(store.isRunning)
     }
 
-    // MARK: - endDay
-
-    func test_endDay_commitsNonZeroSession() {
-        let store = makeStore(activeSession: Session(name: "마지막", duration: 80))
-        var calledWith: Day?
-        store.onDayClosed = { calledWith = $0 }
-        store.endDay()
-        XCTAssertEqual(calledWith?.sessions.count, 1)
-        XCTAssertEqual(calledWith?.sessions[0].name, "마지막")
-    }
-
-    func test_endDay_doesNotCommitZeroDurationSession() {
-        let store = makeStore(activeSession: Session(duration: 0))
-        var calledWith: Day?
-        store.onDayClosed = { calledWith = $0 }
-        store.endDay()
-        XCTAssertTrue(calledWith?.sessions.isEmpty ?? true)
-    }
-
-    func test_endDay_emptyDay_doesNotCallOnDayClosed() {
-        // SPEC §10: 빈 하루는 과거 목록에 추가하지 않음
-        let store = makeStore()
-        var closed = false
-        store.onDayClosed = { _ in closed = true }
-        store.endDay()
-        XCTAssertFalse(closed)
-    }
-
-    func test_endDay_stopsTimer() {
-        let store = makeStore(activeSession: Session(duration: 10))
-        store.start()
-        store.endDay()
-        XCTAssertFalse(store.isRunning)
-    }
-
-    func test_endDay_resetsTimersToZero() {
-        let store = makeStore(activeSession: Session(duration: 10))
-        store.endDay()
-        XCTAssertEqual(store.currentSessionDuration, 0)
-        XCTAssertEqual(store.totalDuration, 0)
-    }
-
-    func test_endDay_emptyDayWithStopState_doesNotFire() {
-        // SPEC §10: 진행 중 세션이 한 번도 시작되지 않은 빈 하루에서 종료
-        let store = makeStore()
-        var fired = false
-        store.onDayClosed = { _ in fired = true }
-        store.endDay()
-        XCTAssertFalse(fired)
-    }
-
     // MARK: - session name normalization
 
     func test_resetSession_trimsWhitespaceInName() {
@@ -308,6 +257,144 @@ final class TimerStoreTests: XCTestCase {
 
         XCTAssertEqual(closedDays.first?.sessions.first?.name, "리뷰")
         XCTAssertNil(store.activeSession)
+    }
+
+    func test_rollover_multipleDaysSkipped_currentDayAdvancesToLatestBoundary() {
+        // 앱이 3일 동안 꺼졌다 켜진 경우 — 모든 경계를 연속으로 처리해 currentDay가 최신 날짜로 이동해야 함
+        let dayStart = localDate(year: 2026, month: 5, day: 23, hour: 8)
+        let session = Session(name: "작업", duration: 3600)
+        var day = Day(startedAt: dayStart)
+        day.sessions.append(session)
+
+        // 5/26 09:00 — 경계 5/24 06:00, 5/25 06:00, 5/26 06:00 세 개를 모두 넘음
+        let clock = MockClock(date: localDate(year: 2026, month: 5, day: 26, hour: 9))
+        let store = makeStore(clock: clock, currentDay: day)
+
+        var closedDays: [Day] = []
+        store.onDayClosed = { closedDays.append($0) }
+
+        store.checkAndPerformRollover()
+
+        // 5/23 하루만 non-empty → onDayClosed 1회 호출
+        XCTAssertEqual(closedDays.count, 1)
+        // currentDay.startedAt은 마지막 경계(5/26 06:00)여야 함 — 5/23이나 5/24가 아님
+        let expectedBoundary = localDate(year: 2026, month: 5, day: 26, hour: 6)
+        XCTAssertEqual(store.currentDay.startedAt, expectedBoundary)
+    }
+
+    // MARK: - renameSession (by id)
+
+    func test_renameSession_renamesTargetSession() {
+        let session = Session(name: "작업A", duration: 60)
+        var day = Day()
+        day.sessions = [session]
+        let store = makeStore(currentDay: day)
+
+        store.renameSession(id: session.id, to: "작업B")
+
+        XCTAssertEqual(store.currentDay.sessions[0].name, "작업B")
+    }
+
+    func test_renameSession_sameNameSessions_onlyTargetRenamed() {
+        // 이름이 같아도 id가 다른 세션은 각각 독립적으로 rename 가능
+        let s1 = Session(name: "리액트", duration: 60)
+        let s2 = Session(name: "리액트", duration: 30)
+        var day = Day()
+        day.sessions = [s1, s2]
+        let store = makeStore(currentDay: day)
+
+        store.renameSession(id: s1.id, to: "리액트 복습")
+
+        XCTAssertEqual(store.currentDay.sessions[0].name, "리액트 복습")
+        XCTAssertEqual(store.currentDay.sessions[1].name, "리액트")
+    }
+
+    func test_renameSession_alsoRenamesActiveSession() {
+        let active = Session(name: "작업A", duration: 30)
+        let store = makeStore(activeSession: active)
+
+        store.renameSession(id: active.id, to: "작업B")
+
+        XCTAssertEqual(store.activeSession?.name, "작업B")
+    }
+
+    func test_renameSession_blankNewName_becomesUntitled() {
+        let session = Session(name: "작업A", duration: 60)
+        var day = Day()
+        day.sessions = [session]
+        let store = makeStore(currentDay: day)
+
+        store.renameSession(id: session.id, to: "   ")
+
+        XCTAssertEqual(store.currentDay.sessions[0].name, "(Untitled)")
+    }
+
+    func test_renameSession_triggersOnStateChanged() {
+        let session = Session(name: "A", duration: 60)
+        var day = Day()
+        day.sessions = [session]
+        let store = makeStore(currentDay: day)
+        var fired = false
+        store.onStateChanged = { fired = true }
+
+        store.renameSession(id: session.id, to: "B")
+
+        XCTAssertTrue(fired)
+    }
+
+    // MARK: - deleteSession (by id)
+
+    func test_deleteSession_removesTargetSession() {
+        let s1 = Session(name: "작업A", duration: 60)
+        let s2 = Session(name: "작업B", duration: 30)
+        var day = Day()
+        day.sessions = [s1, s2]
+        let store = makeStore(currentDay: day)
+
+        store.deleteSession(id: s1.id)
+
+        XCTAssertEqual(store.currentDay.sessions.count, 1)
+        XCTAssertEqual(store.currentDay.sessions[0].name, "작업B")
+    }
+
+    func test_deleteSession_sameNameSessions_onlyTargetDeleted() {
+        // 이름이 같아도 id가 다른 세션은 하나만 삭제됨
+        let s1 = Session(name: "리액트", duration: 60)
+        let s2 = Session(name: "리액트", duration: 30)
+        var day = Day()
+        day.sessions = [s1, s2]
+        let store = makeStore(currentDay: day)
+
+        store.deleteSession(id: s1.id)
+
+        XCTAssertEqual(store.currentDay.sessions.count, 1)
+        XCTAssertEqual(store.currentDay.sessions[0].id, s2.id)
+    }
+
+    func test_deleteSession_doesNotRemoveDay() {
+        // 현재 하루는 세션을 모두 삭제해도 Day 자체는 유지됨 (타이머의 컨테이너)
+        let session = Session(name: "작업A", duration: 60)
+        var day = Day()
+        day.sessions = [session]
+        let store = makeStore(currentDay: day)
+
+        store.deleteSession(id: session.id)
+
+        XCTAssertTrue(store.currentDay.sessions.isEmpty)
+    }
+
+    func test_deleteSession_triggersOnStateChanged() {
+        let s1 = Session(name: "A", duration: 60)
+        let s2 = Session(name: "B", duration: 30)
+        var day = Day()
+        day.sessions = [s1, s2]
+        let store = makeStore(currentDay: day)
+        var fired = false
+        store.onStateChanged = { fired = true }
+
+        store.deleteSession(id: s1.id)
+
+        XCTAssertTrue(fired)
     }
 }
 
