@@ -29,12 +29,16 @@
 		AA0000000000000000000213 /* PastDayRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000113 /* PastDayRowView.swift */; };
 		AA0000000000000000000214 /* DayDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000114 /* DayDetailView.swift */; };
 		AA0000000000000000000215 /* StatsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000115 /* StatsScreen.swift */; };
+		AA0000000000000000000216 /* WeeklyBarChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000116 /* WeeklyBarChartView.swift */; };
+		AA0000000000000000000217 /* MonthlyCalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000117 /* MonthlyCalendarView.swift */; };
+		AA0000000000000000000218 /* DayCardComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000118 /* DayCardComponents.swift */; };
 		AA0000000000000000000220 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000120 /* Assets.xcassets */; };
 		AA0000000000000000000230 /* TimerStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000130 /* TimerStoreTests.swift */; };
 		AA0000000000000000000231 /* SessionAggregationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000131 /* SessionAggregationTests.swift */; };
 		AA0000000000000000000232 /* PersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000132 /* PersistenceTests.swift */; };
 		AA0000000000000000000233 /* AverageCalculationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000133 /* AverageCalculationTests.swift */; };
 		AA0000000000000000000234 /* TimeFormattingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000134 /* TimeFormattingTests.swift */; };
+		AA0000000000000000000235 /* StatisticsStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000135 /* StatisticsStoreTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -63,12 +67,16 @@
 		AA0000000000000000000113 /* PastDayRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PastDayRowView.swift; sourceTree = "<group>"; };
 		AA0000000000000000000114 /* DayDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayDetailView.swift; sourceTree = "<group>"; };
 		AA0000000000000000000115 /* StatsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsScreen.swift; sourceTree = "<group>"; };
+		AA0000000000000000000116 /* WeeklyBarChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyBarChartView.swift; sourceTree = "<group>"; };
+		AA0000000000000000000117 /* MonthlyCalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonthlyCalendarView.swift; sourceTree = "<group>"; };
+		AA0000000000000000000118 /* DayCardComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayCardComponents.swift; sourceTree = "<group>"; };
 		AA0000000000000000000120 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AA0000000000000000000130 /* TimerStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerStoreTests.swift; sourceTree = "<group>"; };
 		AA0000000000000000000131 /* SessionAggregationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionAggregationTests.swift; sourceTree = "<group>"; };
 		AA0000000000000000000132 /* PersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceTests.swift; sourceTree = "<group>"; };
 		AA0000000000000000000133 /* AverageCalculationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AverageCalculationTests.swift; sourceTree = "<group>"; };
 		AA0000000000000000000134 /* TimeFormattingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeFormattingTests.swift; sourceTree = "<group>"; };
+		AA0000000000000000000135 /* StatisticsStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsStoreTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXContainerItemProxy section */
@@ -199,6 +207,9 @@
 				AA0000000000000000000113 /* PastDayRowView.swift */,
 				AA0000000000000000000114 /* DayDetailView.swift */,
 				AA0000000000000000000115 /* StatsScreen.swift */,
+				AA0000000000000000000116 /* WeeklyBarChartView.swift */,
+				AA0000000000000000000117 /* MonthlyCalendarView.swift */,
+				AA0000000000000000000118 /* DayCardComponents.swift */,
 			);
 			path = Stats;
 			sourceTree = "<group>";
@@ -220,6 +231,7 @@
 				AA0000000000000000000132 /* PersistenceTests.swift */,
 				AA0000000000000000000133 /* AverageCalculationTests.swift */,
 				AA0000000000000000000134 /* TimeFormattingTests.swift */,
+				AA0000000000000000000135 /* StatisticsStoreTests.swift */,
 			);
 			path = HyperfocusTests;
 			sourceTree = "<group>";
@@ -345,6 +357,9 @@
 				AA0000000000000000000213 /* PastDayRowView.swift in Sources */,
 				AA0000000000000000000214 /* DayDetailView.swift in Sources */,
 				AA0000000000000000000215 /* StatsScreen.swift in Sources */,
+				AA0000000000000000000216 /* WeeklyBarChartView.swift in Sources */,
+				AA0000000000000000000217 /* MonthlyCalendarView.swift in Sources */,
+				AA0000000000000000000218 /* DayCardComponents.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -357,6 +372,7 @@
 				AA0000000000000000000232 /* PersistenceTests.swift in Sources */,
 				AA0000000000000000000233 /* AverageCalculationTests.swift in Sources */,
 				AA0000000000000000000234 /* TimeFormattingTests.swift in Sources */,
+				AA0000000000000000000235 /* StatisticsStoreTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

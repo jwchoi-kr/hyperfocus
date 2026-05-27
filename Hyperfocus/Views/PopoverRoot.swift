@@ -21,10 +21,10 @@ struct PopoverRoot: View {
                 onBack: { screen = .timer },
                 onSelectDay: { day in screen = .dayDetail(day) }
             )
-            .frame(width: 300)
+            .frame(width: 420, height: 820)
         case .dayDetail(let day):
             DayDetailView(day: day, onBack: { screen = .stats })
-                .frame(width: 300)
+                .frame(width: 420, height: 820)
         }
     }
 }

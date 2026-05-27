@@ -1,27 +1,26 @@
 import SwiftUI
 
 struct StatsScreen: View {
-    @Environment(StatisticsStore.self) private var statsStore
     let onBack: () -> Void
     let onSelectDay: (Day) -> Void
 
     var body: some View {
         VStack(spacing: 0) {
-            // Navigation bar
-            HStack {
-                Button(action: onBack) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "chevron.left")
-                        Text("타이머")
-                    }
-                    .font(.caption)
-                }
-                .buttonStyle(.plain)
-                Spacer()
-                Text("통계")
+            // Navigation bar: back button left, "Stats" centered via ZStack
+            ZStack {
+                Text("Stats")
                     .font(.headline)
-                Spacer()
-                    .frame(width: 60)  // balance back button width
+                HStack {
+                    Button(action: onBack) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "chevron.left")
+                            Text("Timer")
+                        }
+                        .font(.caption)
+                    }
+                    .buttonStyle(.plain)
+                    Spacer()
+                }
             }
             .padding(.horizontal)
             .padding(.top, 12)
@@ -31,22 +30,28 @@ struct StatsScreen: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
-                    AverageSummaryView()
+                    sectionHeader("Today")
                     CurrentDayCardView()
 
-                    if !statsStore.pastDays.isEmpty {
-                        Text("지난 날")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        ForEach(statsStore.pastDays) { day in
-                            PastDayRowView(day: day, onSelect: { onSelectDay(day) })
-                            Divider()
-                        }
-                    }
+                    sectionHeader("This Week")
+                        .padding(.top, 12)
+                    WeeklyBarChartView()
+
+                    sectionHeader("This Month")
+                        .padding(.top, 12)
+                    MonthlyCalendarView(onSelectDay: onSelectDay)
                 }
                 .padding()
             }
-            .frame(maxHeight: 420)
+            .frame(maxHeight: .infinity)
         }
     }
+
+    @ViewBuilder
+    private func sectionHeader(_ title: String) -> some View {
+        Text(title)
+            .font(.footnote.bold())
+            .foregroundStyle(.secondary)
+    }
+
 }
