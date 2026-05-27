@@ -157,9 +157,9 @@
    - 편집 아이콘 탭 시 입력 모드로 전환
    - `onChange`로 `TimerStore.updateActiveSessionName(_:)` 호출 (Store 내부에서 디바운스됨)
 3. `Views/Timer/TimerControls.swift`
-   - 기본 버튼 영역(위 divider): idle→`[Start]`, running→`[Pause][Reset]`, paused→`[Resume][Reset]`
-   - 보조 버튼 영역(위 divider, 항상): `[End]`+`[Stats]` 나란히
-   - End 누르면 `TimerStore.endDay()` 호출, Stats는 콜백으로 화면 전환
+   - 기본 버튼 영역(위 divider): idle→`[Start]`, running→`[Pause][End]`, paused→`[Resume][End]`
+   - 보조 버튼 영역(위 divider, 항상): `[Stats]` 단독. Stats는 콜백으로 화면 전환
+   - End 누르면 `TimerStore.resetSession()` 호출
 4. `Views/Timer/TimerScreen.swift`
    - 위 컴포넌트 조립
 5. `PopoverRoot`의 timer 케이스를 `TimerScreen()`으로 교체
@@ -170,9 +170,7 @@
 - Title 입력 → 타이핑 후 0.5초 이내 디스크 저장 확인 (`state.json` 모니터)
 - Title 비어있으면 input 필드, 입력 후엔 텍스트+편집 아이콘 표시 확인
 - Pause → 시간 멈춤, 메뉴바 라벨 현재 시간 고정
-- Reset → Current 0, Today는 마감 세션 합계, Title 필드 초기화, idle 상태 복귀 (`Start` 버튼 단독 표시)
-- End → Current/Today 둘 다 0, 메뉴바 `00:00:00` 텍스트 유지
-- End 후 상태가 디스크에도 반영됨
+- End → Current 0, Today는 마감 세션 합계, Title 필드 초기화, idle 상태 복귀(`Start` 버튼 단독 표시)
 
 ---
 
@@ -185,27 +183,51 @@
 1. `Views/Stats/AverageSummaryView.swift`
    - `StatisticsStore.recentAverage()`를 받아 표시
    - 0개일 때 안내 문구, 7개 미만일 때 sample size 표기
-2. `Views/Stats/CurrentDayCardView.swift`
-   - 오늘 하루의 시작 일시, 누적, 합산 세션 리스트 (`aggregatedSessionsIncluding(day:active:)`)
-   - 진행 중 세션은 합산에 포함시켜야 함 (오늘 하루 한정)
-3. `Views/Stats/PastDayRowView.swift`
+2. `Views/Stats/DayCardComponents.swift` (신규)
+   - `DayCard`: 헤더(`DayCardHeader`) + 세션 행(`DaySessionRow`) 목록을 회색 카드로 감싸는 공용 컴포넌트. `editingSessionID` 상태를 내부에서 관리
+   - `DayCardHeader`: 날짜(`EEE, MMM d`) + 총시간(`.title2.bold`) 왼쪽 / Start·End 그리드 오른쪽
+   - `DaySessionRow`: 세션 행 — 이름·시간·%·시간범위를 13pt 단일 크기로 표시. `isActive: Bool = false` 기본값
+3. `Views/Stats/CurrentDayCardView.swift`
+   - `DayCard`를 사용하여 단순화. `aggregatedSessionsIncluding(day:active:)`로 세션 목록 전달
+   - 편집 시 `renameSessionsInCurrentDay`, 삭제 시 `deleteSessionsFromCurrentDay` 호출
+   - 삭제 확인 UI: `[Delete]` / `[Cancel]` 버튼만 표시 (텍스트 메시지 없음, 버튼 왼쪽 정렬)
+4. `Views/Stats/WeeklyBarChartView.swift` (신규)
+   - 이번 주(월~일) 날짜별 작업 시간 바 차트
+5. `Views/Stats/MonthlyCalendarView.swift` (신규)
+   - 이번 달의 날짜별 작업 기록 캘린더
+   - 월 타이틀 탭 → 현재 달(오늘이 속한 달)로 이동
+6. `Views/Stats/PastDayRowView.swift`
    - 한 날 요약 (시작/종료/총합)
    - 탭 시 detail view로 전환
-4. `Views/Stats/DayDetailView.swift`
-   - 해당 날의 합산 세션 리스트, 시간 내림차순
-   - 뒤로 가기 버튼
-5. `Views/Stats/StatsScreen.swift`
-   - 위에서 아래로 요약 → 오늘 카드 → 지난 날 목록 스택
-   - 상단에 `[타이머로]` 돌아가기 버튼
-6. `PopoverRoot`의 stats 케이스를 `StatsScreen()`으로 교체, detail navigation은 PopoverRoot가 관리
+7. `Views/Stats/DayDetailView.swift`
+   - `DayCard`를 사용하여 Today 카드와 동일한 레이아웃으로 표시
+   - 네비게이션 바 타이틀: `yyyy-MM-dd` 형식 날짜. 뒤로 가기 버튼 라벨: `"Stats"`
+   - 삭제 확인 UI: `[Delete]` / `[Cancel]` 버튼만 표시 (텍스트 메시지 없음, 버튼 왼쪽 정렬)
+   - day가 비어 자동 삭제되면 `onBack()` 호출
+8. `Views/Stats/StatsScreen.swift`
+   - 위에서 아래로 요약 → **Today 섹션**(`CurrentDayCardView`) → **This Week 섹션**(`WeeklyBarChartView`) → **This Month 섹션**(`MonthlyCalendarView`) → **Past Days 섹션**(`PastDayRowView` 목록) 스택
+   - 섹션 헤더 라벨: `"Today"`, `"This Week"`, `"This Month"`. 헤더 위 padding.top 12pt
+   - 팝오버 크기: 420 × 820pt
+9. `PopoverRoot`의 stats 케이스를 `StatsScreen()`으로 교체, detail navigation은 PopoverRoot가 관리
 
 **검증 (수동):**
 
 - 가짜 데이터 시드 (직접 JSON 작성)로 과거 날 3개/8개 상태에서 진입
 - 합산이 SPEC §6.3 규칙대로 맞음 (대소문자 다른 Title은 분리, 공백만 Title은 `(Untitled)`로 묶임)
-- 시간 내림차순 정렬 확인
-- 지난 날 클릭 → 상세 → 뒤로 가기 흐름 자연스러움
+- 세션이 처음 시작된 시간 순(오름차순) 정렬 확인
+- 오늘 카드 세션 목록에 % 표시 확인: 각 세션의 오늘 전체 시간 대비 백분율이 시간 텍스트 왼쪽에 표시되고, 모든 세션의 % 텍스트가 동일한 열(column)에 정렬됨
+- 통계 화면 진입 시 Today → This Week → This Month → Past Days 순서로 표시됨 확인
+- Past Days 항목 클릭 → 상세(날짜 타이틀 표시, 뒤로 가기 "Stats") → 뒤로 가기 흐름 자연스러움
 - 평균 표시가 sample size 표기 포함해 정확
+- 캘린더 월 타이틀 탭 → 현재 달로 이동 확인
+- 상세 화면 세션 항목 왼쪽에 편집·삭제 아이콘 표시 확인
+- 편집 아이콘 클릭 → 인라인 입력 필드로 전환, Return 후 저장 확인
+- 빈 문자열로 편집 → `(Untitled)`로 저장 확인
+- 삭제 아이콘 클릭 → `[Delete]`/`[Cancel]` 버튼 표시, `[Delete]` 시 세션 제거 확인
+- 마지막 항목 삭제 → 통계 화면으로 자동 이동 확인
+- 오늘 카드 세션 항목 왼쪽에 편집·삭제 아이콘 표시 확인
+- 오늘 카드 편집 → 저장된 세션 이름 변경, 빈 문자열 → `(Untitled)` 확인
+- 오늘 카드 삭제 → 저장된 세션 제거, 카드는 유지됨 확인
 
 ---
 
@@ -237,7 +259,7 @@
 **할 일:**
 
 1. SPEC §10 엣지 케이스 표를 체크리스트로 만들어 모두 수동 확인
-2. SPEC §4의 UI 구성 순서/라벨/버튼 명칭(Title, Current, Today, Start, Pause, Resume, Reset, End, Stats)이 모두 일치하는지 검수
+2. SPEC §4의 UI 구성 순서/라벨/버튼 명칭(Title, Current, Today, Start, Pause, Resume, End, Stats)이 모두 일치하는지 검수
 3. 메뉴바 라벨 두 줄 표시 확인: idle → `(Untitled)/00:00:00`, 이름 있음 → 이름/타이머, 긴 이름 → `…` 말줄임
 4. 메뉴바 라벨 폭 안정성 한 번 더 확인 (1자리 시→10자리 시 전환 시 다른 메뉴바 아이콘 움직임 없음)
 5. 앱 종료 후 재시작 시 SPEC §9대로 일시정지 상태로 복원되는지 확인
