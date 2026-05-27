@@ -22,27 +22,29 @@ struct TimerControls: View {
     @ViewBuilder
     private var primaryButtons: some View {
         if timerStore.isRunning {
-            // running: Pause + Reset
+            // running: Pause (gray) + End (red)
             HStack(spacing: 10) {
                 Button("Pause") { timerStore.pause() }
-                    .buttonStyle(.borderedProminent)
-                    .frame(maxWidth: .infinity)
-                Button("Reset") { timerStore.resetSession() }
                     .buttonStyle(.bordered)
+                    .frame(maxWidth: .infinity)
+                Button("End") { timerStore.resetSession() }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.red)
                     .frame(maxWidth: .infinity)
             }
         } else if timerStore.activeSession != nil {
-            // paused: Resume + Reset
+            // paused: Resume (blue) + End (red)
             HStack(spacing: 10) {
                 Button("Resume") { timerStore.start() }
                     .buttonStyle(.borderedProminent)
                     .frame(maxWidth: .infinity)
-                Button("Reset") { timerStore.resetSession() }
-                    .buttonStyle(.bordered)
+                Button("End") { timerStore.resetSession() }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.red)
                     .frame(maxWidth: .infinity)
             }
         } else {
-            // idle: Start
+            // idle: Start (blue)
             Button("Start") { timerStore.start() }
                 .buttonStyle(.borderedProminent)
                 .frame(maxWidth: .infinity)
@@ -50,15 +52,8 @@ struct TimerControls: View {
     }
 
     private var secondaryButtons: some View {
-        HStack(spacing: 10) {
-            Button("End") { timerStore.endDay() }
-                .buttonStyle(.bordered)
-                .tint(.red)
-                .frame(maxWidth: .infinity)
-
-            Button("Stats") { onShowStats() }
-                .buttonStyle(.bordered)
-                .frame(maxWidth: .infinity)
-        }
+        Button("Stats") { onShowStats() }
+            .buttonStyle(.bordered)
+            .frame(maxWidth: .infinity)
     }
 }

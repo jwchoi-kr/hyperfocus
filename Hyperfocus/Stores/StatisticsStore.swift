@@ -7,6 +7,8 @@ private let logger = Logger(subsystem: "com.hyperfocus", category: "StatisticsSt
 final class StatisticsStore {
     private(set) var pastDays: [Day]
 
+    var onStateChanged: (() -> Void)?
+
     init(pastDays: [Day] = []) {
         self.pastDays = pastDays
     }
@@ -29,17 +31,27 @@ final class StatisticsStore {
         return (total / Double(sample.count), sample.count)
     }
 
-    func aggregatedSessions(of day: Day) -> [AggregatedSession] {
-        aggregateSessions(day.sessions)
+    func sessions(of day: Day) -> [Session] {
+        day.sessions.sorted { $0.startedAt < $1.startedAt }
     }
 
-    func aggregatedSessionsIncluding(day: Day, active: Session?) -> [AggregatedSession] {
-        var all = day.sessions
-        if let active = active, active.duration > 0 {
-            var copy = active
-            copy.name = normalizedSessionName(active.name)
-            all.append(copy)
+    func renameSession(in day: Day, sessionID: UUID, to newTitle: String) {
+        guard let dayIdx = pastDays.firstIndex(where: { $0.id == day.id }) else { return }
+        guard let sessionIdx = pastDays[dayIdx].sessions.firstIndex(where: { $0.id == sessionID }) else { return }
+        let normalized = normalizedSessionName(newTitle)
+        pastDays[dayIdx].sessions[sessionIdx].name = normalized
+        logger.info("Renamed session \(sessionID) → '\(normalized)' in day \(day.id)")
+        onStateChanged?()
+    }
+
+    func deleteSession(in day: Day, sessionID: UUID) {
+        guard let dayIdx = pastDays.firstIndex(where: { $0.id == day.id }) else { return }
+        pastDays[dayIdx].sessions.removeAll { $0.id == sessionID }
+        logger.info("Deleted session \(sessionID) from day \(day.id)")
+        if pastDays[dayIdx].isEmpty {
+            pastDays.remove(at: dayIdx)
+            logger.info("Day removed after becoming empty")
         }
-        return aggregateSessions(all)
+        onStateChanged?()
     }
 }

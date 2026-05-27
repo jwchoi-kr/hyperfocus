@@ -8,6 +8,13 @@ func formatHHMMSS(_ seconds: TimeInterval) -> String {
     return String(format: "%02d:%02d:%02d", hours, minutes, secs)
 }
 
+func formatHHMM(_ seconds: TimeInterval) -> String {
+    let total = max(0, Int(seconds))
+    let hours = total / 3600
+    let minutes = (total % 3600) / 60
+    return String(format: "%02d:%02d", hours, minutes)
+}
+
 func formatHumanShort(_ seconds: TimeInterval) -> String {
     let total = max(0, Int(seconds))
     let hours = total / 3600

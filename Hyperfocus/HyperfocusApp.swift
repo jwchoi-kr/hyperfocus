@@ -28,9 +28,9 @@ struct HyperfocusApp: App {
             stats?.appendClosedDay(day)
         }
 
-        // Wire state-changed callback to trigger debounced persistence
+        // Wire state-changed callbacks to trigger debounced persistence
         let p = persistence
-        timer.onStateChanged = { [weak timer, weak stats] in
+        let saveState = { [weak timer, weak stats] in
             guard let t = timer, let s = stats else { return }
             p.requestSave(PersistedState(
                 currentDay: t.currentDay,
@@ -38,6 +38,8 @@ struct HyperfocusApp: App {
                 activeSession: t.activeSession
             ))
         }
+        timer.onStateChanged = saveState
+        stats.onStateChanged = saveState
 
         // Auto-pause and immediate flush before system sleep; rollover check on wake
         self.sleepObserver = SleepObserver(

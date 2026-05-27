@@ -72,44 +72,36 @@ final class TimerStore {
         onStateChanged?()
     }
 
-    func endDay() {
-        commitActiveSessionIfNeeded()
-
-        if isRunning {
-            stopTicking()
-            isRunning = false
-        }
-
-        var closed = currentDay
-        closed.endedAt = clock.now
-
-        if !closed.isEmpty {
-            onDayClosed?(closed)
-            logger.info("Day closed: \(closed.sessions.count) sessions")
-        } else {
-            logger.info("Empty day discarded on end")
-        }
-
-        currentDay = Day(startedAt: clock.now)
-        activeSession = nil
-        lastTickAt = nil
-
-        logger.info("Day ended")
-        onStateChanged?()
-    }
-
     func updateActiveSessionName(_ name: String) {
         activeSession?.name = name
         onStateChanged?()
     }
 
-    /// 앱 시작·wake 시 호출. 마지막 저장 하루의 새벽 6시 경계를 넘었으면 자동 마감 수행.
-    /// 마감 후 다음 새벽 6시로 인앱 롤오버 타이머를 재스케줄한다 (SPEC §5.5).
+    func renameSession(id sessionID: UUID, to newTitle: String) {
+        let normalized = normalizedSessionName(newTitle)
+        if let idx = currentDay.sessions.firstIndex(where: { $0.id == sessionID }) {
+            currentDay.sessions[idx].name = normalized
+        }
+        if activeSession?.id == sessionID {
+            activeSession?.name = normalized
+        }
+        logger.info("Renamed session \(sessionID) → '\(normalized)' in current day")
+        onStateChanged?()
+    }
+
+    func deleteSession(id sessionID: UUID) {
+        currentDay.sessions.removeAll { $0.id == sessionID }
+        logger.info("Deleted session \(sessionID) from current day")
+        onStateChanged?()
+    }
+
+    /// 앱 시작·wake 시 호출. 새벽 6시 경계를 넘은 횟수만큼 반복 롤오버를 수행한다.
+    /// 여러 날이 지나서 재시작된 경우에도 currentDay.startedAt이 최신 경계로 업데이트된다 (SPEC §5.5).
     func checkAndPerformRollover() {
-        let now = clock.now
-        let boundary = next6AM(after: currentDay.startedAt)
-        if now >= boundary {
+        var boundary = next6AM(after: currentDay.startedAt)
+        while clock.now >= boundary {
             performRollover(closingAt: boundary)
+            boundary = next6AM(after: currentDay.startedAt)
         }
         scheduleNextRollover()
     }
@@ -167,8 +159,7 @@ final class TimerStore {
 
     /// currentDay.startedAt 이후의 첫 새벽 6시를 반환한다.
     private func next6AM(after date: Date) -> Date {
-        var cal = Calendar.current
-        cal.timeZone = TimeZone.current
+        let cal = Calendar.current
         var components = cal.dateComponents([.year, .month, .day], from: date)
         components.hour = 6
         components.minute = 0
