@@ -42,6 +42,7 @@
 		AA0000000000000000000233 /* AverageCalculationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000133 /* AverageCalculationTests.swift */; };
 		AA0000000000000000000234 /* TimeFormattingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000134 /* TimeFormattingTests.swift */; };
 		AA0000000000000000000235 /* StatisticsStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000135 /* StatisticsStoreTests.swift */; };
+		DF6E12A8E830F3A43C3A557C /* FocusBlocker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73F71CBF793303DD75CB2A99 /* FocusBlocker.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -56,6 +57,7 @@
 
 /* Begin PBXFileReference section */
 		317447CCFDC9C7C18DBCD0FD /* FocusStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FocusStore.swift; sourceTree = "<group>"; };
+		73F71CBF793303DD75CB2A99 /* FocusBlocker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FocusBlocker.swift; sourceTree = "<group>"; };
 		AA000000000000000000000F /* Hyperfocus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hyperfocus.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA0000000000000000000010 /* HyperfocusTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HyperfocusTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA0000000000000000000100 /* HyperfocusApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HyperfocusApp.swift; sourceTree = "<group>"; };
@@ -173,6 +175,7 @@
 				AA0000000000000000000104 /* Clock.swift */,
 				AA0000000000000000000105 /* Persistence.swift */,
 				AA0000000000000000000106 /* SleepObserver.swift */,
+				73F71CBF793303DD75CB2A99 /* FocusBlocker.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -363,6 +366,7 @@
 				AA0000000000000000000218 /* DayCardComponents.swift in Sources */,
 				0C12FBE5D5534738C374CD50 /* FocusBlocklist.swift in Sources */,
 				07EB6BE96B0B6C19FEA71F8A /* FocusStore.swift in Sources */,
+				DF6E12A8E830F3A43C3A557C /* FocusBlocker.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
