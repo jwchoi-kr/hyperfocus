@@ -21,7 +21,7 @@ struct PersistedState: Codable {
         self.focusBlocklist = focusBlocklist
     }
 
-    // focusBlocklist가 없는 기존 JSON을 읽을 때 빈 목록으로 폴백
+    // decodeIfPresent: 기존 state.json에 이 키가 없어도 빈 목록으로 안전하게 마이그레이션
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         schemaVersion = try c.decode(Int.self, forKey: .schemaVersion)

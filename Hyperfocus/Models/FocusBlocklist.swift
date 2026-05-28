@@ -1,15 +1,14 @@
-// Hyperfocus/Models/FocusBlocklist.swift
 import Foundation
 
 struct BlockedApp: Codable, Identifiable, Equatable {
-    var id: UUID
-    var bundleIdentifier: String  // "com.kakao.KakaoTalk"
-    var displayName: String       // "카카오톡"
+    let id: UUID
+    var bundleIdentifier: String
+    var displayName: String
 }
 
 struct BlockedSite: Codable, Identifiable, Equatable {
-    var id: UUID
-    var domain: String            // "linkedin.com"
+    let id: UUID
+    var domain: String
 }
 
 struct FocusBlocklist: Codable, Equatable {
