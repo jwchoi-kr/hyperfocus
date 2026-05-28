@@ -42,6 +42,28 @@ final class FocusStoreTests: XCTestCase {
         XCTAssertTrue(store.blockedSites.isEmpty)
     }
 
+    func test_removeSite_unknownID_doesNothing() {
+        let store = makeStore()
+        store.removeSite(id: UUID())
+        XCTAssertTrue(store.blockedSites.isEmpty)
+    }
+
+    func test_removeApp_unknownID_doesNotFireOnStateChanged() {
+        let store = makeStore()
+        var callCount = 0
+        store.onStateChanged = { callCount += 1 }
+        store.removeApp(id: UUID())
+        XCTAssertEqual(callCount, 0)
+    }
+
+    func test_removeSite_unknownID_doesNotFireOnStateChanged() {
+        let store = makeStore()
+        var callCount = 0
+        store.onStateChanged = { callCount += 1 }
+        store.removeSite(id: UUID())
+        XCTAssertEqual(callCount, 0)
+    }
+
     func test_addApp_firesOnStateChanged() {
         let store = makeStore()
         var callCount = 0

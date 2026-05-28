@@ -22,7 +22,9 @@ final class FocusStore {
     }
 
     func removeApp(id: UUID) {
+        let before = blockedApps.count
         blockedApps.removeAll { $0.id == id }
+        guard blockedApps.count != before else { return }
         logger.info("Blocked app removed: \(id)")
         onStateChanged?()
     }
@@ -34,7 +36,9 @@ final class FocusStore {
     }
 
     func removeSite(id: UUID) {
+        let before = blockedSites.count
         blockedSites.removeAll { $0.id == id }
+        guard blockedSites.count != before else { return }
         logger.info("Blocked site removed: \(id)")
         onStateChanged?()
     }
