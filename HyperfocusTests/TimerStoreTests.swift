@@ -383,6 +383,61 @@ final class TimerStoreTests: XCTestCase {
         XCTAssertTrue(store.currentDay.sessions.isEmpty)
     }
 
+    // MARK: - onBlockingStart / onBlockingStop
+
+    func test_start_firesOnBlockingStart() {
+        let store = makeStore()
+        var fired = false
+        store.onBlockingStart = { fired = true }
+        store.start()
+        XCTAssertTrue(fired)
+    }
+
+    func test_pause_firesOnBlockingStop() {
+        let store = makeStore()
+        store.start()
+        var fired = false
+        store.onBlockingStop = { fired = true }
+        store.pause()
+        XCTAssertTrue(fired)
+    }
+
+    func test_pause_whenNotRunning_doesNotFireOnBlockingStop() {
+        let store = makeStore()
+        var fired = false
+        store.onBlockingStop = { fired = true }
+        store.pause()
+        XCTAssertFalse(fired)
+    }
+
+    func test_resetSession_whenRunning_firesOnBlockingStop() {
+        let store = makeStore()
+        store.start()
+        var fired = false
+        store.onBlockingStop = { fired = true }
+        store.resetSession()
+        XCTAssertTrue(fired)
+    }
+
+    func test_resetSession_whenIdle_doesNotFireOnBlockingStop() {
+        let store = makeStore(activeSession: Session(duration: 30))
+        var fired = false
+        store.onBlockingStop = { fired = true }
+        store.resetSession()
+        XCTAssertFalse(fired)
+    }
+
+    func test_start_pause_start_firesCallbacksInOrder() {
+        let store = makeStore()
+        var events: [String] = []
+        store.onBlockingStart = { events.append("start") }
+        store.onBlockingStop = { events.append("stop") }
+        store.start()
+        store.pause()
+        store.start()
+        XCTAssertEqual(events, ["start", "stop", "start"])
+    }
+
     func test_deleteSession_triggersOnStateChanged() {
         let s1 = Session(name: "A", duration: 60)
         let s2 = Session(name: "B", duration: 30)

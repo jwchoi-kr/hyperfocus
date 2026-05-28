@@ -12,6 +12,8 @@ final class TimerStore {
 
     var onDayClosed: ((Day) -> Void)?
     var onStateChanged: (() -> Void)?
+    var onBlockingStart: (() -> Void)?
+    var onBlockingStop: (() -> Void)?
 
     private var lastTickAt: Date?
     private var timerCancellable: AnyCancellable?
@@ -48,6 +50,7 @@ final class TimerStore {
         startTicking()
 
         logger.info("Timer started")
+        onBlockingStart?()
         onStateChanged?()
     }
 
@@ -63,6 +66,7 @@ final class TimerStore {
         if isRunning {
             stopTicking()
             isRunning = false
+            onBlockingStop?()
         }
 
         commitActiveSessionIfNeeded()
@@ -115,6 +119,7 @@ final class TimerStore {
         lastTickAt = nil
 
         logger.info("Timer paused (immediate=\(saveImmediately))")
+        onBlockingStop?()
         onStateChanged?()
     }
 
