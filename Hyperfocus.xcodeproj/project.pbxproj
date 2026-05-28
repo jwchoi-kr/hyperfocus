@@ -7,7 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		07EB6BE96B0B6C19FEA71F8A /* FocusStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 317447CCFDC9C7C18DBCD0FD /* FocusStore.swift */; };
 		0C12FBE5D5534738C374CD50 /* FocusBlocklist.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CC6D81F71239E662AEA7D9 /* FocusBlocklist.swift */; };
+		14AD682C984E73CA813BEA12 /* FocusStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C991DDA529A0531403EB044F /* FocusStoreTests.swift */; };
 		AA0000000000000000000200 /* HyperfocusApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000100 /* HyperfocusApp.swift */; };
 		AA0000000000000000000201 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000101 /* Session.swift */; };
 		AA0000000000000000000202 /* Day.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000102 /* Day.swift */; };
@@ -53,6 +55,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		317447CCFDC9C7C18DBCD0FD /* FocusStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FocusStore.swift; sourceTree = "<group>"; };
 		AA000000000000000000000F /* Hyperfocus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hyperfocus.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA0000000000000000000010 /* HyperfocusTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HyperfocusTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA0000000000000000000100 /* HyperfocusApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HyperfocusApp.swift; sourceTree = "<group>"; };
@@ -89,6 +92,7 @@
 		AA0000000000000000000134 /* TimeFormattingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeFormattingTests.swift; sourceTree = "<group>"; };
 		AA0000000000000000000135 /* StatisticsStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsStoreTests.swift; sourceTree = "<group>"; };
 		B0CC6D81F71239E662AEA7D9 /* FocusBlocklist.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FocusBlocklist.swift; sourceTree = "<group>"; };
+		C991DDA529A0531403EB044F /* FocusStoreTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FocusStoreTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -158,6 +162,7 @@
 			children = (
 				AA0000000000000000000107 /* TimerStore.swift */,
 				AA0000000000000000000108 /* StatisticsStore.swift */,
+				317447CCFDC9C7C18DBCD0FD /* FocusStore.swift */,
 			);
 			path = Stores;
 			sourceTree = "<group>";
@@ -227,6 +232,7 @@
 				AA0000000000000000000133 /* AverageCalculationTests.swift */,
 				AA0000000000000000000134 /* TimeFormattingTests.swift */,
 				AA0000000000000000000135 /* StatisticsStoreTests.swift */,
+				C991DDA529A0531403EB044F /* FocusStoreTests.swift */,
 			);
 			path = HyperfocusTests;
 			sourceTree = "<group>";
@@ -356,6 +362,7 @@
 				AA0000000000000000000217 /* MonthlyCalendarView.swift in Sources */,
 				AA0000000000000000000218 /* DayCardComponents.swift in Sources */,
 				0C12FBE5D5534738C374CD50 /* FocusBlocklist.swift in Sources */,
+				07EB6BE96B0B6C19FEA71F8A /* FocusStore.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -369,6 +376,7 @@
 				AA0000000000000000000233 /* AverageCalculationTests.swift in Sources */,
 				AA0000000000000000000234 /* TimeFormattingTests.swift in Sources */,
 				AA0000000000000000000235 /* StatisticsStoreTests.swift in Sources */,
+				14AD682C984E73CA813BEA12 /* FocusStoreTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
