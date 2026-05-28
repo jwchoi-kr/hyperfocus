@@ -3,6 +3,7 @@ import SwiftUI
 struct TimerControls: View {
     @Environment(TimerStore.self) private var timerStore
     let onShowStats: () -> Void
+    let onShowFocus: () -> Void
 
     var body: some View {
         VStack(spacing: 0) {
@@ -52,8 +53,13 @@ struct TimerControls: View {
     }
 
     private var secondaryButtons: some View {
-        Button("Stats") { onShowStats() }
-            .buttonStyle(.bordered)
-            .frame(maxWidth: .infinity)
+        HStack(spacing: 10) {
+            Button("Stats") { onShowStats() }
+                .buttonStyle(.bordered)
+                .frame(maxWidth: .infinity)
+            Button("Focus") { onShowFocus() }
+                .buttonStyle(.bordered)
+                .frame(maxWidth: .infinity)
+        }
     }
 }

@@ -5,6 +5,7 @@ struct TimerScreen: View {
     @Environment(TimerStore.self) private var timerStore
     @Environment(\.dismiss) private var dismiss
     let onShowStats: () -> Void
+    let onShowFocus: () -> Void
 
     @State private var spaceKeyMonitor: Any?
 
@@ -17,7 +18,7 @@ struct TimerScreen: View {
                 totalDuration: timerStore.totalDuration
             )
 
-            TimerControls(onShowStats: onShowStats)
+            TimerControls(onShowStats: onShowStats, onShowFocus: onShowFocus)
         }
         .padding()
         .onAppear { setupSpaceKeyMonitor() }
