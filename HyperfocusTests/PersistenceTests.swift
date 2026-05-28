@@ -74,4 +74,33 @@ final class PersistenceTests: XCTestCase {
         let loaded = p.load()
         XCTAssertNil(loaded.activeSession)
     }
+
+    func test_roundTrip_preservesFocusBlocklist() {
+        let p = Persistence(fileURL: tempURL)
+        let app = BlockedApp(id: UUID(), bundleIdentifier: "com.kakao.KakaoTalk", displayName: "카카오톡")
+        let site = BlockedSite(id: UUID(), domain: "linkedin.com")
+        let state = PersistedState(focusBlocklist: FocusBlocklist(blockedApps: [app], blockedSites: [site]))
+        p.saveNow(state)
+        let loaded = p.load()
+        XCTAssertEqual(loaded.focusBlocklist.blockedApps.count, 1)
+        XCTAssertEqual(loaded.focusBlocklist.blockedApps.first?.bundleIdentifier, "com.kakao.KakaoTalk")
+        XCTAssertEqual(loaded.focusBlocklist.blockedSites.count, 1)
+        XCTAssertEqual(loaded.focusBlocklist.blockedSites.first?.domain, "linkedin.com")
+    }
+
+    func test_loadingOldStateWithoutFocusBlocklist_returnsEmptyBlocklist() {
+        let dayID = UUID().uuidString
+        let oldJSON = """
+        {
+          "schemaVersion": 1,
+          "currentDay": {"id": "\(dayID)", "startedAt": "2026-05-29T00:00:00Z", "sessions": []},
+          "pastDays": []
+        }
+        """.data(using: .utf8)!
+        try! oldJSON.write(to: tempURL)
+        let p = Persistence(fileURL: tempURL)
+        let state = p.load()
+        XCTAssertTrue(state.focusBlocklist.blockedApps.isEmpty)
+        XCTAssertTrue(state.focusBlocklist.blockedSites.isEmpty)
+    }
 }

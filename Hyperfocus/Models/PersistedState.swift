@@ -5,16 +5,29 @@ struct PersistedState: Codable {
     var currentDay: Day
     var pastDays: [Day]
     var activeSession: Session?
+    var focusBlocklist: FocusBlocklist
 
     init(
         schemaVersion: Int = 1,
         currentDay: Day = Day(),
         pastDays: [Day] = [],
-        activeSession: Session? = nil
+        activeSession: Session? = nil,
+        focusBlocklist: FocusBlocklist = FocusBlocklist()
     ) {
         self.schemaVersion = schemaVersion
         self.currentDay = currentDay
         self.pastDays = pastDays
         self.activeSession = activeSession
+        self.focusBlocklist = focusBlocklist
+    }
+
+    // focusBlocklist가 없는 기존 JSON을 읽을 때 빈 목록으로 폴백
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        schemaVersion = try c.decode(Int.self, forKey: .schemaVersion)
+        currentDay = try c.decode(Day.self, forKey: .currentDay)
+        pastDays = try c.decode([Day].self, forKey: .pastDays)
+        activeSession = try c.decodeIfPresent(Session.self, forKey: .activeSession)
+        focusBlocklist = try c.decodeIfPresent(FocusBlocklist.self, forKey: .focusBlocklist) ?? FocusBlocklist()
     }
 }
