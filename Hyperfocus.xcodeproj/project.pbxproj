@@ -10,6 +10,7 @@
 		07EB6BE96B0B6C19FEA71F8A /* FocusStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 317447CCFDC9C7C18DBCD0FD /* FocusStore.swift */; };
 		0C12FBE5D5534738C374CD50 /* FocusBlocklist.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CC6D81F71239E662AEA7D9 /* FocusBlocklist.swift */; };
 		14AD682C984E73CA813BEA12 /* FocusStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C991DDA529A0531403EB044F /* FocusStoreTests.swift */; };
+		8681232BCCD65701BA0D2C58 /* AppPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 610CF50421A54F263C9BA413 /* AppPickerView.swift */; };
 		AA0000000000000000000200 /* HyperfocusApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000100 /* HyperfocusApp.swift */; };
 		AA0000000000000000000201 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000101 /* Session.swift */; };
 		AA0000000000000000000202 /* Day.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000102 /* Day.swift */; };
@@ -42,6 +43,7 @@
 		AA0000000000000000000233 /* AverageCalculationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000133 /* AverageCalculationTests.swift */; };
 		AA0000000000000000000234 /* TimeFormattingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000134 /* TimeFormattingTests.swift */; };
 		AA0000000000000000000235 /* StatisticsStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000135 /* StatisticsStoreTests.swift */; };
+		AED4B27F58EEFB434E50A69D /* FocusScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45496C037FC648AFB0308E9A /* FocusScreen.swift */; };
 		DF6E12A8E830F3A43C3A557C /* FocusBlocker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73F71CBF793303DD75CB2A99 /* FocusBlocker.swift */; };
 /* End PBXBuildFile section */
 
@@ -57,6 +59,8 @@
 
 /* Begin PBXFileReference section */
 		317447CCFDC9C7C18DBCD0FD /* FocusStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FocusStore.swift; sourceTree = "<group>"; };
+		45496C037FC648AFB0308E9A /* FocusScreen.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FocusScreen.swift; sourceTree = "<group>"; };
+		610CF50421A54F263C9BA413 /* AppPickerView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppPickerView.swift; sourceTree = "<group>"; };
 		73F71CBF793303DD75CB2A99 /* FocusBlocker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FocusBlocker.swift; sourceTree = "<group>"; };
 		AA000000000000000000000F /* Hyperfocus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hyperfocus.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA0000000000000000000010 /* HyperfocusTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HyperfocusTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -187,6 +191,7 @@
 				AA000000000000000000G006 /* Stats */,
 				AA000000000000000000010B /* MenuBarLabel.swift */,
 				AA000000000000000000010C /* PopoverRoot.swift */,
+				C9820A35DFB755CE891AF783 /* Focus */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -238,6 +243,15 @@
 				C991DDA529A0531403EB044F /* FocusStoreTests.swift */,
 			);
 			path = HyperfocusTests;
+			sourceTree = "<group>";
+		};
+		C9820A35DFB755CE891AF783 /* Focus */ = {
+			isa = PBXGroup;
+			children = (
+				45496C037FC648AFB0308E9A /* FocusScreen.swift */,
+				610CF50421A54F263C9BA413 /* AppPickerView.swift */,
+			);
+			path = Focus;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -367,6 +381,8 @@
 				0C12FBE5D5534738C374CD50 /* FocusBlocklist.swift in Sources */,
 				07EB6BE96B0B6C19FEA71F8A /* FocusStore.swift in Sources */,
 				DF6E12A8E830F3A43C3A557C /* FocusBlocker.swift in Sources */,
+				AED4B27F58EEFB434E50A69D /* FocusScreen.swift in Sources */,
+				8681232BCCD65701BA0D2C58 /* AppPickerView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
