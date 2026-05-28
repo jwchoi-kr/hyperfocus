@@ -10,6 +10,10 @@ final class FocusStore {
 
     var onStateChanged: (() -> Void)?
 
+    var currentBlocklist: FocusBlocklist {
+        FocusBlocklist(blockedApps: blockedApps, blockedSites: blockedSites)
+    }
+
     init(blocklist: FocusBlocklist = FocusBlocklist()) {
         self.blockedApps = blocklist.blockedApps
         self.blockedSites = blocklist.blockedSites
