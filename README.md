@@ -1,6 +1,8 @@
-# Hyperfocus
-
-macOS 메뉴바에서 작업 시간을 기록하고 통계를 확인하는 앱. 세션을 시작하면 방해 앱·사이트를 차단해 집중 환경을 만들어준다.
+<p align="center">
+  <img src="docs/screenshots/icon.png" width="80" alt="Hyperfocus icon" />
+  <h1 align="center">Hyperfocus</h1>
+  <p align="center">macOS 메뉴바에서 작업 시간을 기록하고 통계를 확인하는 앱. 세션을 시작하면 방해 앱·사이트를 차단해 집중 환경을 만들어준다.</p>
+</p>
 
 <br>
 
