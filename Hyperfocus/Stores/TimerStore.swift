@@ -77,6 +77,7 @@ final class TimerStore {
     }
 
     func updateActiveSessionName(_ name: String) {
+        guard let current = activeSession, current.name != name else { return }
         activeSession?.name = name
         onStateChanged?()
     }

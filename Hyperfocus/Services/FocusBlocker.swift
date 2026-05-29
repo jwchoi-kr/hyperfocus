@@ -69,10 +69,6 @@ final class FocusBlocker {
 
     private func startTabPolling() {
         guard !blocklist.blockedSites.isEmpty else { return }
-        scheduleTabPolling()
-    }
-
-    private func scheduleTabPolling() {
         tabPollingTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
             self?.closeBlockedChromeTabs()
         }

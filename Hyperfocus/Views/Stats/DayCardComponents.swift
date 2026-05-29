@@ -1,9 +1,13 @@
 import SwiftUI
 
+private let hhmmFormatter: DateFormatter = {
+    let f = DateFormatter()
+    f.dateFormat = "HH:mm"
+    return f
+}()
+
 // MARK: - Card
 
-/// 헤더(날짜·시간·Start/End) + 세션 목록을 회색 카드로 감싼 컴포넌트.
-/// CurrentDayCardView 와 DayDetailView 가 공유한다.
 struct DayCard: View {
     let date: Date
     let totalDuration: TimeInterval
@@ -56,8 +60,6 @@ struct DayCard: View {
 
 // MARK: - Header
 
-/// 날짜 라벨 + 총 시간 (왼쪽) / Start·End 그리드 (오른쪽) 헤더.
-/// CurrentDayCardView 와 DayDetailView 가 공유한다.
 struct DayCardHeader: View {
     let date: Date
     let totalDuration: TimeInterval
@@ -68,12 +70,6 @@ struct DayCardHeader: View {
         let f = DateFormatter()
         f.locale = Locale(identifier: "en_US")
         f.dateFormat = "EEE, MMM d"
-        return f
-    }()
-
-    private static let timeFormatter: DateFormatter = {
-        let f = DateFormatter()
-        f.dateFormat = "HH:mm"
         return f
     }()
 
@@ -95,7 +91,7 @@ struct DayCardHeader: View {
                             .font(.system(size: 13))
                             .foregroundStyle(.secondary)
                             .gridColumnAlignment(.leading)
-                        Text(Self.timeFormatter.string(from: start))
+                        Text(hhmmFormatter.string(from: start))
                             .font(.system(size: 13).monospacedDigit())
                             .foregroundStyle(.secondary)
                             .gridColumnAlignment(.trailing)
@@ -107,7 +103,7 @@ struct DayCardHeader: View {
                             .font(.system(size: 13))
                             .foregroundStyle(.secondary)
                             .gridColumnAlignment(.leading)
-                        Text(Self.timeFormatter.string(from: end))
+                        Text(hhmmFormatter.string(from: end))
                             .font(.system(size: 13).monospacedDigit())
                             .foregroundStyle(.secondary)
                             .gridColumnAlignment(.trailing)
@@ -120,8 +116,6 @@ struct DayCardHeader: View {
 
 // MARK: - Session Row
 
-/// 세션 한 행: 이름 | 시간 | % | 시간범위. 편집·삭제 액션 포함.
-/// isActive = true 이면 삭제 버튼을 숨긴다 (진행 중 세션).
 struct DaySessionRow: View {
     let session: Session
     let totalDuration: TimeInterval
@@ -136,12 +130,6 @@ struct DaySessionRow: View {
     @State private var isDeleting = false
     @State private var editingText = ""
     @FocusState private var isEditFieldFocused: Bool
-
-    private static let timeFormatter: DateFormatter = {
-        let f = DateFormatter()
-        f.dateFormat = "HH:mm"
-        return f
-    }()
 
     private var percent: Int {
         guard totalDuration > 0 else { return 0 }
@@ -184,6 +172,10 @@ struct DaySessionRow: View {
                         .focused($isEditFieldFocused)
                         .font(.system(size: 13))
                         .onSubmit { onCommitEdit(editingText) }
+                        .onKeyPress(.escape) {
+                            onCancelEdit()
+                            return .handled
+                        }
                         .onAppear {
                             let trimmed = session.name.trimmingCharacters(in: .whitespaces)
                             editingText = trimmed
@@ -200,7 +192,7 @@ struct DaySessionRow: View {
                     } label: {
                         Image(systemName: "pencil")
                             .font(.system(size: 13))
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                     }
                     .buttonStyle(.borderless)
                     .opacity(isHovered ? 1 : 0)
@@ -210,7 +202,7 @@ struct DaySessionRow: View {
                         Button { isDeleting = true } label: {
                             Image(systemName: "trash")
                                 .font(.system(size: 13))
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(.secondary)
                         }
                         .buttonStyle(.borderless)
                         .opacity(isHovered ? 1 : 0)
@@ -231,7 +223,7 @@ struct DaySessionRow: View {
                     .frame(minWidth: 28, alignment: .trailing)
             }
 
-            Text("\(Self.timeFormatter.string(from: session.startedAt))-\(Self.timeFormatter.string(from: endTime))")
+            Text("\(hhmmFormatter.string(from: session.startedAt))-\(hhmmFormatter.string(from: endTime))")
                 .font(.system(size: 13).monospacedDigit())
                 .foregroundStyle(.secondary)
         }

@@ -31,7 +31,7 @@ struct PopoverRoot: View {
                 .frame(width: 420, height: 820)
         case .focus:
             FocusScreen(onBack: { screen = .timer })
-                .frame(width: 300)
+                .frame(width: 300, height: 420)
         }
     }
 }

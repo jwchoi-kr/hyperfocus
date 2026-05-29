@@ -23,15 +23,14 @@ final class Persistence {
     }
 
     func load() -> PersistedState {
-        guard FileManager.default.fileExists(atPath: fileURL.path) else {
-            logger.info("No state file found, returning empty state")
-            return PersistedState()
-        }
         do {
             let data = try Data(contentsOf: fileURL)
             let state = try Self.decoder.decode(PersistedState.self, from: data)
             logger.info("State loaded from disk")
             return state
+        } catch CocoaError.fileReadNoSuchFile, CocoaError.fileNoSuchFile {
+            logger.info("No state file found, returning empty state")
+            return PersistedState()
         } catch {
             logger.error("Failed to load state: \(error.localizedDescription, privacy: .public)")
             return PersistedState()
