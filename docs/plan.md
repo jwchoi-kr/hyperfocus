@@ -11,7 +11,7 @@
 
 ---
 
-## Phase 0 — 프로젝트 스캐폴딩
+## Phase 0 — 프로젝트 스캐폴딩 [완료]
 
 **목표:** Xcode 프로젝트가 열리고, 메뉴바에 "Hello" 한 글자라도 떠야 한다.
 
@@ -34,7 +34,7 @@
 
 ---
 
-## Phase 1 — 도메인 모델 + 영속화
+## Phase 1 — 도메인 모델 + 영속화 [완료]
 
 **목표:** 디스크에 상태를 쓰고 다시 읽어들이는 사이클이 동작한다 (UI는 아직 없음).
 
@@ -58,7 +58,7 @@
 
 ---
 
-## Phase 2 — TimerStore (핵심 로직)
+## Phase 2 — TimerStore (핵심 로직) [완료]
 
 **목표:** 코드만으로 SPEC §5의 모든 동작이 검증된다.
 
@@ -66,7 +66,7 @@
 
 1. `Stores/TimerStore.swift` — `@Observable` 클래스
    - 보유: `currentDay: Day`, `activeSession: Session?`, `isRunning: Bool`, `lastTickAt: Date?`
-   - 액션: `start()`, `pause()`, `pauseForSleep()`, `resetSession()`, `endDay()`, `updateActiveSessionName(_:)`
+   - 액션: `start()`, `pause()`, `pauseForSleep()`, `resetSession()`, `updateActiveSessionName(_:)`
    - 파생: `currentSessionDuration`, `totalDuration`
    - 콜백: `onDayClosed: ((Day) -> Void)?`, `onStateChanged: (() -> Void)?`
 2. tick 메커니즘: `Timer.publish(every: 1.0, on: .main, in: .common)` 구독,
@@ -75,7 +75,7 @@
 4. `HyperfocusTests/TimerStoreTests.swift`
    - `ClockProtocol` mock(`MockClock`)으로 시간 임의 진행
    - SPEC §5 + §10 엣지 케이스 표의 각 행을 테스트 케이스화
-   - 특히: 누적 0 세션이 기록되지 않는 것, 세션 리셋 후 idle 복귀(activeSession = nil, isRunning = false), `endDay` 시 빈 하루 미기록
+   - 특히: 누적 0 세션이 기록되지 않는 것, 세션 리셋 후 idle 복귀(activeSession = nil, isRunning = false), rollover 시 빈 하루 미기록
 
 **검증:**
 
@@ -84,15 +84,14 @@
 
 ---
 
-## Phase 3 — StatisticsStore + 합산 유틸
+## Phase 3 — StatisticsStore + 정규화 유틸 [완료]
 
 **목표:** 과거 주기 데이터로 통계 화면이 필요로 하는 모든 값이 계산된다.
 
 **할 일:**
 
 1. `Utilities/SessionAggregation.swift`
-   - 입력: `[Session]`, 출력: `[(title: String, total: TimeInterval)]` (시간 내림차순)
-   - SPEC §6.2~6.3 규칙대로 빈/공백 Title은 `(Untitled)`로 정규화, 대소문자 구분
+   - `normalizedSessionName(_ name: String) -> String`: 빈/공백 Title은 `(Untitled)`로 정규화
 2. `Utilities/TimeFormatting.swift`
    - `formatHHMMSS(_ seconds: TimeInterval) -> String`
    - `formatHumanShort(_ seconds: TimeInterval) -> String` (예: `5h 42m`)
@@ -100,21 +99,20 @@
    - 보유: `pastDays: [Day]` (최신이 앞)
    - 액션: `appendClosedDay(_ day: Day)` — 빈 하루(세션 0개)면 무시
    - 파생: `recentAverage(count: Int = 7) -> (average: TimeInterval, sampleSize: Int)?`
-   - 헬퍼: `aggregatedSessions(of: Day) -> [AggregatedSession]`, `aggregatedSessionsIncluding(day:active:) -> [AggregatedSession]`
 4. `TimerStore.onDayClosed` 콜백에서 `StatisticsStore.appendClosedDay()` 호출 (`HyperfocusApp`에서 연결)
 5. 테스트:
-   - `SessionAggregationTests.swift` — 빈 이름/공백/대소문자/합산 케이스
+   - `SessionAggregationTests.swift` — 빈 이름/공백 정규화 케이스
    - `AverageCalculationTests.swift` — 0/3/7/10개 하루 경계
    - `TimeFormattingTests.swift` — 0초/59초/1시간/100시간
 
 **검증:**
 
 - 모든 단위 테스트 통과
-- `endDay` 호출 시 `StatisticsStore.pastDays`가 올바르게 갱신됨 (TimerStore 테스트에 통합 시나리오 추가)
+- rollover 시 `StatisticsStore.pastDays`가 올바르게 갱신됨 (TimerStore 테스트에 통합 시나리오 추가)
 
 ---
 
-## Phase 4 — 메뉴바 + Popover 셸
+## Phase 4 — 메뉴바 + Popover 셸 [완료]
 
 **목표:** 메뉴바 라벨이 상태에 따라 토글되고, 클릭 시 빈 Popover가 뜬다.
 
@@ -144,7 +142,7 @@
 
 ---
 
-## Phase 5 — 타이머 화면 UI
+## Phase 5 — 타이머 화면 UI [완료]
 
 **목표:** SPEC §4.1과 §5의 모든 사용자 액션을 popover에서 직접 수행할 수 있다.
 
@@ -174,51 +172,44 @@
 
 ---
 
-## Phase 6 — 통계 화면 UI
+## Phase 6 — 통계 화면 UI [완료]
 
-**목표:** SPEC §4.2, §4.3, §7의 모든 표시 규칙이 화면에 그려진다.
+**목표:** SPEC §4.2, §4.4, §7의 모든 표시 규칙이 화면에 그려진다.
 
 **할 일:**
 
-1. `Views/Stats/AverageSummaryView.swift`
-   - `StatisticsStore.recentAverage()`를 받아 표시
-   - 0개일 때 안내 문구, 7개 미만일 때 sample size 표기
-2. `Views/Stats/DayCardComponents.swift` (신규)
+1. `Views/Stats/DayCardComponents.swift` (신규)
    - `DayCard`: 헤더(`DayCardHeader`) + 세션 행(`DaySessionRow`) 목록을 회색 카드로 감싸는 공용 컴포넌트. `editingSessionID` 상태를 내부에서 관리
    - `DayCardHeader`: 날짜(`EEE, MMM d`) + 총시간(`.title2.bold`) 왼쪽 / Start·End 그리드 오른쪽
    - `DaySessionRow`: 세션 행 — 이름·시간·%·시간범위를 13pt 단일 크기로 표시. `isActive: Bool = false` 기본값
-3. `Views/Stats/CurrentDayCardView.swift`
-   - `DayCard`를 사용하여 단순화. `aggregatedSessionsIncluding(day:active:)`로 세션 목록 전달
-   - 편집 시 `renameSessionsInCurrentDay`, 삭제 시 `deleteSessionsFromCurrentDay` 호출
+2. `Views/Stats/CurrentDayCardView.swift`
+   - `DayCard`를 사용하여 단순화. `currentDay.sessions`(시작 시각 오름차순)을 `DayCard`에 전달
+   - 편집 시 `TimerStore.renameSession(id:to:)`, 삭제 시 `TimerStore.deleteSession(id:)` 호출
    - 삭제 확인 UI: `[Delete]` / `[Cancel]` 버튼만 표시 (텍스트 메시지 없음, 버튼 왼쪽 정렬)
-4. `Views/Stats/WeeklyBarChartView.swift` (신규)
+3. `Views/Stats/WeeklyBarChartView.swift` (신규)
    - 이번 주(월~일) 날짜별 작업 시간 바 차트
-5. `Views/Stats/MonthlyCalendarView.swift` (신규)
+4. `Views/Stats/MonthlyCalendarView.swift` (신규)
    - 이번 달의 날짜별 작업 기록 캘린더
    - 월 타이틀 탭 → 현재 달(오늘이 속한 달)로 이동
-6. `Views/Stats/PastDayRowView.swift`
-   - 한 날 요약 (시작/종료/총합)
-   - 탭 시 detail view로 전환
-7. `Views/Stats/DayDetailView.swift`
+   - 날짜 셀 탭 → `DayDetailView`로 이동 (`onSelectDay` 콜백 경유)
+5. `Views/Stats/DayDetailView.swift`
    - `DayCard`를 사용하여 Today 카드와 동일한 레이아웃으로 표시
    - 네비게이션 바 타이틀: `yyyy-MM-dd` 형식 날짜. 뒤로 가기 버튼 라벨: `"Stats"`
    - 삭제 확인 UI: `[Delete]` / `[Cancel]` 버튼만 표시 (텍스트 메시지 없음, 버튼 왼쪽 정렬)
    - day가 비어 자동 삭제되면 `onBack()` 호출
-8. `Views/Stats/StatsScreen.swift`
-   - 위에서 아래로 요약 → **Today 섹션**(`CurrentDayCardView`) → **This Week 섹션**(`WeeklyBarChartView`) → **This Month 섹션**(`MonthlyCalendarView`) → **Past Days 섹션**(`PastDayRowView` 목록) 스택
+6. `Views/Stats/StatsScreen.swift`
+   - 위에서 아래로 **Today 섹션**(`CurrentDayCardView`) → **This Week 섹션**(`WeeklyBarChartView`) → **This Month 섹션**(`MonthlyCalendarView`) 스택
    - 섹션 헤더 라벨: `"Today"`, `"This Week"`, `"This Month"`. 헤더 위 padding.top 12pt
    - 팝오버 크기: 420 × 820pt
-9. `PopoverRoot`의 stats 케이스를 `StatsScreen()`으로 교체, detail navigation은 PopoverRoot가 관리
+7. `PopoverRoot`의 stats 케이스를 `StatsScreen()`으로 교체, detail navigation은 PopoverRoot가 관리
 
 **검증 (수동):**
 
 - 가짜 데이터 시드 (직접 JSON 작성)로 과거 날 3개/8개 상태에서 진입
-- 합산이 SPEC §6.3 규칙대로 맞음 (대소문자 다른 Title은 분리, 공백만 Title은 `(Untitled)`로 묶임)
-- 세션이 처음 시작된 시간 순(오름차순) 정렬 확인
+- 세션이 시작 시각 오름차순으로 개별 항목으로 표시됨 확인
 - 오늘 카드 세션 목록에 % 표시 확인: 각 세션의 오늘 전체 시간 대비 백분율이 시간 텍스트 왼쪽에 표시되고, 모든 세션의 % 텍스트가 동일한 열(column)에 정렬됨
-- 통계 화면 진입 시 Today → This Week → This Month → Past Days 순서로 표시됨 확인
-- Past Days 항목 클릭 → 상세(날짜 타이틀 표시, 뒤로 가기 "Stats") → 뒤로 가기 흐름 자연스러움
-- 평균 표시가 sample size 표기 포함해 정확
+- 통계 화면 진입 시 Today → This Week → This Month 순서로 표시됨 확인
+- 캘린더 날짜 셀 탭 → 상세(날짜 타이틀 표시, 뒤로 가기 "Stats") → 뒤로 가기 흐름 자연스러움
 - 캘린더 월 타이틀 탭 → 현재 달로 이동 확인
 - 상세 화면 세션 항목 왼쪽에 편집·삭제 아이콘 표시 확인
 - 편집 아이콘 클릭 → 인라인 입력 필드로 전환, Return 후 저장 확인
@@ -231,7 +222,7 @@
 
 ---
 
-## Phase 7 — 슬립 연동
+## Phase 7 — 슬립 연동 [완료]
 
 **목표:** 시스템 슬립 시 자동 일시정지, 깨어났을 때 자동 재개 없음 (SPEC §8).
 
@@ -241,8 +232,7 @@
    - 생성자에 `onSleep: () -> Void`, `onWake: () -> Void` 클로저
    - `.willSleepNotification` → `onSleep`, `.didWakeNotification` → `onWake`
    - deinit에서 removeObserver
-2. `HyperfocusApp`에서 `SleepObserver(onSleep: { timerStore.pause() }, onWake: { timerStore.checkAndPerformRollover() })` 보관
-3. `TimerStore.pause()`가 슬립으로 호출될 때도 `Persistence.saveNow`로 즉시 flush되도록 분기 추가 (인자로 `flushImmediately: Bool`)
+2. `HyperfocusApp`에서 `SleepObserver(onSleep: { timerStore.pauseForSleep(); persistence.saveNow(...) }, onWake: { timerStore.checkAndPerformRollover() })` 연결 — 슬립 시 `TimerStore.pauseForSleep()` 호출 후 `Persistence.saveNow()`를 직접 호출하여 즉시 flush
 
 **검증 (수동):**
 
@@ -252,7 +242,7 @@
 
 ---
 
-## Phase 8 — 통합 검증 + 폴리시
+## Phase 8 — 통합 검증 + 폴리시 [완료]
 
 **목표:** SPEC 전체를 손으로 한 바퀴 돌려 회귀가 없는지 확인한다.
 
@@ -275,7 +265,7 @@
 
 ---
 
-## Phase 9 — 키보드 단축키 및 포커스 UX
+## Phase 9 — 키보드 단축키 및 포커스 UX [완료]
 
 **목표:** SPEC §3.2의 Space 키 단축키와 §4.1의 자동 포커스 + Return 키 시작 동작이 구현된다.
 
@@ -303,6 +293,43 @@
 
 ---
 
+## Phase 10 — macOS Focus 연동 [완료]
+
+**목표:** 세션 시작/종료 시 macOS Shortcuts의 `Focus On` / `Focus Off` 단축어가 자동 실행된다.
+
+**할 일:**
+
+1. `Models/FocusBlocklist.swift`
+   - `FocusBlocklist`에 `isMacOSFocusEnabled: Bool = false` 필드 추가
+2. `Stores/FocusStore.swift`
+   - `isMacOSFocusEnabled: Bool` 상태 추가 (저장 및 초기화 시 `FocusBlocklist`에서 주입)
+   - `setMacOSFocusEnabled(_ enabled: Bool)` 액션 추가 (값이 바뀔 때만 `onStateChanged?()` 호출)
+   - `currentBlocklist` 파생값에 `isMacOSFocusEnabled` 반영
+3. `Services/MacOSFocusBridge.swift` 신규
+   - `activate()`: `/usr/bin/shortcuts run "Focus On"` 비동기 `Process` 실행 + 로깅
+   - `deactivate()`: `/usr/bin/shortcuts run "Focus Off"` 비동기 `Process` 실행 + 로깅
+4. `HyperfocusApp.swift`
+   - `MacOSFocusBridge` 인스턴스 추가
+   - `timer.onBlockingStart`: `FocusStore.isMacOSFocusEnabled`이면 `MacOSFocusBridge.activate()` 추가 호출
+   - `timer.onBlockingStop`: `FocusStore.isMacOSFocusEnabled`이면 `MacOSFocusBridge.deactivate()` 추가 호출
+   - `focus.onStateChanged`: `TimerStore.isRunning` 이면 `isMacOSFocusEnabled` 변경에 따라 즉시 activate/deactivate
+5. `Views/Focus/FocusScreen.swift`
+   - macOS Focus 연동 섹션 추가 (차단 앱 섹션 위에 배치): `macOS Focus 연동` 토글
+   - 토글은 `FocusStore.setMacOSFocusEnabled(_:)` 호출
+
+**검증 (수동):**
+
+- Focus Mode 화면 진입 → macOS Focus 연동 토글 표시 확인
+- 토글 켠 상태에서 세션 시작 → macOS Focus 모드 활성 확인 (Shortcuts 앱에 `Focus On` 단축어 미리 작성)
+- 세션 종료(End) → macOS Focus 모드 비활성 확인
+- 세션 Pause → Focus Off, Resume → Focus On 확인
+- 세션 running 중 토글 끄기 → 즉시 Focus Off 확인
+- 토글 끈 상태에서 세션 시작 → macOS Focus 모드 변화 없음 확인
+- 앱 종료 직전 → Focus Off 확인
+- 설정 저장: 토글 켜고 앱 재시작 → 토글 상태 복원 확인
+
+---
+
 ## 단계 의존 관계
 
 ```
@@ -325,6 +352,8 @@ Phase 0 (스캐폴딩)
                                             └── Phase 8 (통합)
                                                       │
                                                       └── Phase 9 (키보드 단축키 + 포커스 UX)
+                                                                │
+                                                                └── Phase 10 (macOS Focus 연동)
 ```
 
 - Phase 1과 Phase 4는 서로 독립이라 병행 가능, 그러나 Phase 5/6은 Phase 2/3 완료 후에 들어가는 게 안전
@@ -343,3 +372,4 @@ Phase 0 (스캐폴딩)
 5. 빌드 경고 0개
 6. 앱 재시작 후 상태가 SPEC §9대로 복원됨
 7. 슬립/깨어남 사이클이 SPEC §8대로 동작함
+8. macOS Focus 연동 토글이 SPEC §4.3대로 동작함 (Phase 10)
