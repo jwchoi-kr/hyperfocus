@@ -4,26 +4,17 @@ import AppKit
 struct AppPickerView: View {
     let alreadyBlocked: Set<String>
     let onSelect: (NSRunningApplication) -> Void
+    let onCancel: () -> Void
 
-    @Environment(\.dismiss) private var dismiss
-
-    private var availableApps: [NSRunningApplication] {
-        NSWorkspace.shared.runningApplications
-            .filter { $0.activationPolicy == .regular }
-            .filter { app in
-                guard let bundle = app.bundleIdentifier else { return false }
-                return !alreadyBlocked.contains(bundle)
-            }
-            .sorted { ($0.localizedName ?? "") < ($1.localizedName ?? "") }
-    }
+    @State private var availableApps: [NSRunningApplication] = []
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
-                Text("차단할 앱 선택")
+                Text("Select App to Block")
                     .font(.headline)
                 Spacer()
-                Button("취소") { dismiss() }
+                Button("Cancel") { onCancel() }
                     .buttonStyle(.plain)
                     .foregroundStyle(.secondary)
             }
@@ -33,7 +24,7 @@ struct AppPickerView: View {
             Divider()
 
             if availableApps.isEmpty {
-                Text("추가 가능한 앱이 없습니다")
+                Text("No apps available to add")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .padding()
@@ -69,5 +60,14 @@ struct AppPickerView: View {
             }
         }
         .frame(width: 280, height: 380)
+        .onAppear {
+            availableApps = NSWorkspace.shared.runningApplications
+                .filter { $0.activationPolicy == .regular }
+                .filter { app in
+                    guard let bundle = app.bundleIdentifier else { return false }
+                    return !alreadyBlocked.contains(bundle)
+                }
+                .sorted { ($0.localizedName ?? "") < ($1.localizedName ?? "") }
+        }
     }
 }

@@ -9,24 +9,12 @@ struct FocusScreen: View {
     @State private var showingAppPicker = false
     @State private var isAddingSite = false
     @State private var newSiteDomain = ""
+    @FocusState private var isSiteFieldFocused: Bool
 
     private var isBlocking: Bool { timerStore.isRunning }
 
     var body: some View {
-        VStack(spacing: 0) {
-            navBar
-            Divider()
-            ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    statusBadge
-                    appsSection
-                    Divider()
-                    sitesSection
-                }
-                .padding()
-            }
-        }
-        .sheet(isPresented: $showingAppPicker) {
+        if showingAppPicker {
             AppPickerView(
                 alreadyBlocked: Set(focusStore.blockedApps.map(\.bundleIdentifier)),
                 onSelect: { app in
@@ -36,30 +24,37 @@ struct FocusScreen: View {
                         displayName: app.localizedName ?? app.bundleIdentifier ?? "Unknown"
                     ))
                     showingAppPicker = false
-                }
+                },
+                onCancel: { showingAppPicker = false }
             )
-        }
-    }
-
-    private var navBar: some View {
-        ZStack {
-            Text("Focus Mode")
-                .font(.headline)
-            HStack {
-                Button(action: onBack) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "chevron.left")
-                        Text("Timer")
-                    }
-                    .font(.caption)
+        } else {
+            VStack(spacing: 0) {
+                PopoverNavBar(title: "Focus", backLabel: "Timer", onBack: onBack)
+                Divider()
+                VStack(alignment: .leading, spacing: 20) {
+                    statusBadge
+                    macOSFocusSection
+                    Divider()
+                    appsSection
+                    Divider()
+                    sitesSection
                 }
-                .buttonStyle(.plain)
+                .padding()
                 Spacer()
             }
         }
-        .padding(.horizontal)
-        .padding(.top, 12)
-        .padding(.bottom, 8)
+    }
+
+    private var macOSFocusSection: some View {
+        Toggle(isOn: Binding(
+            get: { focusStore.isMacOSFocusEnabled },
+            set: { focusStore.setMacOSFocusEnabled($0) }
+        )) {
+            Text("macOS Focus")
+                .font(.headline)
+        }
+        .toggleStyle(.switch)
+        .controlSize(.mini)
     }
 
     private var statusBadge: some View {
@@ -67,7 +62,7 @@ struct FocusScreen: View {
             Circle()
                 .fill(isBlocking ? Color.green : Color.secondary)
                 .frame(width: 8, height: 8)
-            Text(isBlocking ? "차단 활성" : "차단 비활성")
+            Text(isBlocking ? "Blocking Active" : "Inactive")
                 .font(.subheadline)
                 .foregroundStyle(isBlocking ? .green : .secondary)
         }
@@ -76,7 +71,7 @@ struct FocusScreen: View {
     private var appsSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text("차단 앱")
+                Text("Blocked Apps")
                     .font(.headline)
                 Spacer()
                 Button {
@@ -89,7 +84,7 @@ struct FocusScreen: View {
             }
 
             if focusStore.blockedApps.isEmpty {
-                Text("없음")
+                Text("None")
                     .font(.subheadline)
                     .foregroundStyle(.tertiary)
             } else {
@@ -117,11 +112,11 @@ struct FocusScreen: View {
 
     private var sitesSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("차단 사이트")
+            Text("Blocked Sites")
                 .font(.headline)
 
             if focusStore.blockedSites.isEmpty && !isAddingSite {
-                Text("없음")
+                Text("None")
                     .font(.subheadline)
                     .foregroundStyle(.tertiary)
             } else {
@@ -151,8 +146,14 @@ struct FocusScreen: View {
                 HStack {
                     TextField("linkedin.com", text: $newSiteDomain)
                         .textFieldStyle(.roundedBorder)
+                        .focused($isSiteFieldFocused)
                         .onSubmit { commitNewSite() }
-                    Button("취소") {
+                        .onKeyPress(.escape) {
+                            newSiteDomain = ""
+                            isAddingSite = false
+                            return .handled
+                        }
+                    Button("Cancel") {
                         newSiteDomain = ""
                         isAddingSite = false
                     }
@@ -165,8 +166,9 @@ struct FocusScreen: View {
             if !isBlocking {
                 Button {
                     isAddingSite = true
+                    isSiteFieldFocused = true
                 } label: {
-                    Label("사이트 추가", systemImage: "plus")
+                    Label("Add Site", systemImage: "plus")
                         .font(.subheadline)
                 }
                 .buttonStyle(.plain)
@@ -194,26 +196,26 @@ struct FocusScreen: View {
 
 private struct AppIconView: View {
     let bundleIdentifier: String
-
-    private var icon: NSImage? {
-        if let running = NSWorkspace.shared.runningApplications
-            .first(where: { $0.bundleIdentifier == bundleIdentifier }) {
-            return running.icon
-        }
-        if let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleIdentifier) {
-            return NSWorkspace.shared.icon(forFile: url.path)
-        }
-        return nil
-    }
+    @State private var resolvedIcon: NSImage?
 
     var body: some View {
-        if let img = icon {
-            Image(nsImage: img)
-                .resizable()
-                .scaledToFit()
-        } else {
-            Image(systemName: "app.fill")
-                .foregroundStyle(.secondary)
+        Group {
+            if let img = resolvedIcon {
+                Image(nsImage: img)
+                    .resizable()
+                    .scaledToFit()
+            } else {
+                Image(systemName: "app.fill")
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .onAppear {
+            if let running = NSWorkspace.shared.runningApplications
+                .first(where: { $0.bundleIdentifier == bundleIdentifier }) {
+                resolvedIcon = running.icon
+            } else if let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleIdentifier) {
+                resolvedIcon = NSWorkspace.shared.icon(forFile: url.path)
+            }
         }
     }
 }

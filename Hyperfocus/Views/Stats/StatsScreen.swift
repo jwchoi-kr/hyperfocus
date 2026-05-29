@@ -6,26 +6,7 @@ struct StatsScreen: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // Navigation bar: back button left, "Stats" centered via ZStack
-            ZStack {
-                Text("Stats")
-                    .font(.headline)
-                HStack {
-                    Button(action: onBack) {
-                        HStack(spacing: 4) {
-                            Image(systemName: "chevron.left")
-                            Text("Timer")
-                        }
-                        .font(.caption)
-                    }
-                    .buttonStyle(.plain)
-                    Spacer()
-                }
-            }
-            .padding(.horizontal)
-            .padding(.top, 12)
-            .padding(.bottom, 8)
-
+            PopoverNavBar(title: "Stats", backLabel: "Timer", onBack: onBack)
             Divider()
 
             ScrollView {
