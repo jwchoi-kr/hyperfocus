@@ -83,12 +83,13 @@ struct HyperfocusApp: App {
             }
         )
 
-        // Final flush on quit
+        // Final flush on quit — deactivate blocker first so blocked apps stay closed
         NotificationCenter.default.addObserver(
             forName: NSApplication.willTerminateNotification,
             object: nil,
             queue: .main
-        ) { [weak timer, weak stats, weak focus] _ in
+        ) { [weak timer, weak stats, weak focus, weak blocker] _ in
+            blocker?.deactivate()
             guard let t = timer, let s = stats, let f = focus else { return }
             p.saveNow(PersistedState(
                 currentDay: t.currentDay,

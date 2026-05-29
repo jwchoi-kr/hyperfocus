@@ -393,6 +393,24 @@ final class TimerStoreTests: XCTestCase {
         XCTAssertTrue(fired)
     }
 
+    func test_start_doesNotFireOnBlockingStart_whenAlreadyRunning() {
+        let store = makeStore()
+        store.start()
+        var callCount = 0
+        store.onBlockingStart = { callCount += 1 }
+        store.start()
+        XCTAssertEqual(callCount, 0)
+    }
+
+    func test_pauseForSleep_firesOnBlockingStop() {
+        let store = makeStore()
+        store.start()
+        var fired = false
+        store.onBlockingStop = { fired = true }
+        store.pauseForSleep()
+        XCTAssertTrue(fired)
+    }
+
     func test_pause_firesOnBlockingStop() {
         let store = makeStore()
         store.start()
