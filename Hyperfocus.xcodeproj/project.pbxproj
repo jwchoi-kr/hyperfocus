@@ -22,7 +22,8 @@
 		AA0000000000000000000208 /* StatisticsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000108 /* StatisticsStore.swift */; };
 		AA0000000000000000000209 /* TimeFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000109 /* TimeFormatting.swift */; };
 		AA000000000000000000020A /* SessionAggregation.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000010A /* SessionAggregation.swift */; };
-		AA000000000000000000020B /* MenuBarLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000010B /* MenuBarLabel.swift */; };
+		AA000000000000000000020B /* MenuBarLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000000000000000001AB /* MenuBarLabel.swift */; };
+		664C61CDEFFD4783895A4EA3 /* PopoverNavBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6CBD274946A4DBBB6D20637 /* PopoverNavBar.swift */; };
 		AA000000000000000000020C /* PopoverRoot.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000010C /* PopoverRoot.swift */; };
 		AA000000000000000000020D /* TimeDisplayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000010D /* TimeDisplayView.swift */; };
 		AA000000000000000000020E /* TitleField.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000010E /* TitleField.swift */; };
@@ -45,6 +46,7 @@
 		AA0000000000000000000235 /* StatisticsStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000135 /* StatisticsStoreTests.swift */; };
 		AED4B27F58EEFB434E50A69D /* FocusScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45496C037FC648AFB0308E9A /* FocusScreen.swift */; };
 		DF6E12A8E830F3A43C3A557C /* FocusBlocker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73F71CBF793303DD75CB2A99 /* FocusBlocker.swift */; };
+		AA00000000000000000002AB /* MacOSFocusBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBCDEF0000000000001FABCD /* MacOSFocusBridge.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -62,6 +64,7 @@
 		45496C037FC648AFB0308E9A /* FocusScreen.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FocusScreen.swift; sourceTree = "<group>"; };
 		610CF50421A54F263C9BA413 /* AppPickerView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppPickerView.swift; sourceTree = "<group>"; };
 		73F71CBF793303DD75CB2A99 /* FocusBlocker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FocusBlocker.swift; sourceTree = "<group>"; };
+		FBCDEF0000000000001FABCD /* MacOSFocusBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacOSFocusBridge.swift; sourceTree = "<group>"; };
 		AA000000000000000000000F /* Hyperfocus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hyperfocus.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA0000000000000000000010 /* HyperfocusTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HyperfocusTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA0000000000000000000100 /* HyperfocusApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HyperfocusApp.swift; sourceTree = "<group>"; };
@@ -75,7 +78,8 @@
 		AA0000000000000000000108 /* StatisticsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsStore.swift; sourceTree = "<group>"; };
 		AA0000000000000000000109 /* TimeFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeFormatting.swift; sourceTree = "<group>"; };
 		AA000000000000000000010A /* SessionAggregation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionAggregation.swift; sourceTree = "<group>"; };
-		AA000000000000000000010B /* MenuBarLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarLabel.swift; sourceTree = "<group>"; };
+		AA00000000000000000001AB /* MenuBarLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarLabel.swift; sourceTree = "<group>"; };
+		C6CBD274946A4DBBB6D20637 /* PopoverNavBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopoverNavBar.swift; sourceTree = "<group>"; };
 		AA000000000000000000010C /* PopoverRoot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopoverRoot.swift; sourceTree = "<group>"; };
 		AA000000000000000000010D /* TimeDisplayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeDisplayView.swift; sourceTree = "<group>"; };
 		AA000000000000000000010E /* TitleField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TitleField.swift; sourceTree = "<group>"; };
@@ -180,6 +184,7 @@
 				AA0000000000000000000105 /* Persistence.swift */,
 				AA0000000000000000000106 /* SleepObserver.swift */,
 				73F71CBF793303DD75CB2A99 /* FocusBlocker.swift */,
+				FBCDEF0000000000001FABCD /* MacOSFocusBridge.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -189,8 +194,9 @@
 			children = (
 				AA000000000000000000G005 /* Timer */,
 				AA000000000000000000G006 /* Stats */,
-				AA000000000000000000010B /* MenuBarLabel.swift */,
-				AA000000000000000000010C /* PopoverRoot.swift */,
+				AA00000000000000000001AB /* MenuBarLabel.swift */,
+				C6CBD274946A4DBBB6D20637 /* PopoverNavBar.swift */,
+			AA000000000000000000010C /* PopoverRoot.swift */,
 				C9820A35DFB755CE891AF783 /* Focus */,
 			);
 			path = Views;
@@ -365,7 +371,8 @@
 				AA0000000000000000000209 /* TimeFormatting.swift in Sources */,
 				AA000000000000000000020A /* SessionAggregation.swift in Sources */,
 				AA000000000000000000020B /* MenuBarLabel.swift in Sources */,
-				AA000000000000000000020C /* PopoverRoot.swift in Sources */,
+				664C61CDEFFD4783895A4EA3 /* PopoverNavBar.swift in Sources */,
+			AA000000000000000000020C /* PopoverRoot.swift in Sources */,
 				AA000000000000000000020D /* TimeDisplayView.swift in Sources */,
 				AA000000000000000000020E /* TitleField.swift in Sources */,
 				AA000000000000000000020F /* TimerControls.swift in Sources */,
@@ -381,6 +388,7 @@
 				0C12FBE5D5534738C374CD50 /* FocusBlocklist.swift in Sources */,
 				07EB6BE96B0B6C19FEA71F8A /* FocusStore.swift in Sources */,
 				DF6E12A8E830F3A43C3A557C /* FocusBlocker.swift in Sources */,
+				AA00000000000000000002AB /* MacOSFocusBridge.swift in Sources */,
 				AED4B27F58EEFB434E50A69D /* FocusScreen.swift in Sources */,
 				8681232BCCD65701BA0D2C58 /* AppPickerView.swift in Sources */,
 			);
