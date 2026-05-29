@@ -10,6 +10,7 @@ struct HyperfocusApp: App {
     private let statsStore: StatisticsStore
     private let focusStore: FocusStore
     private let focusBlocker: FocusBlocker
+    private let macOSFocusBridge = MacOSFocusBridge()
     private let sleepObserver: SleepObserver
 
     init() {
@@ -26,6 +27,8 @@ struct HyperfocusApp: App {
         self.timerStore = timer
         self.focusStore = focus
         self.focusBlocker = blocker
+
+        let bridge = macOSFocusBridge
 
         // Catch up on any 6am rollovers that happened while app was closed
         timer.checkAndPerformRollover()
@@ -48,9 +51,13 @@ struct HyperfocusApp: App {
         }
         timer.onStateChanged = saveState
         stats.onStateChanged = saveState
-        focus.onStateChanged = { [weak blocker, weak focus] in
+        focus.onStateChanged = { [weak blocker, weak focus, weak timer] in
             guard let f = focus else { return }
             blocker?.updateBlocklist(f.currentBlocklist)
+            // If the macOS Focus toggle changed while a session is running, apply immediately
+            if timer?.isRunning == true {
+                if f.isMacOSFocusEnabled { bridge.activate() } else { bridge.deactivate() }
+            }
             saveState()
         }
 
@@ -58,9 +65,11 @@ struct HyperfocusApp: App {
         timer.onBlockingStart = { [weak blocker, weak focus] in
             guard let f = focus else { return }
             blocker?.activate(blocklist: f.currentBlocklist)
+            if f.isMacOSFocusEnabled { bridge.activate() }
         }
-        timer.onBlockingStop = { [weak blocker] in
+        timer.onBlockingStop = { [weak blocker, weak focus] in
             blocker?.deactivate()
+            if focus?.isMacOSFocusEnabled == true { bridge.deactivate() }
         }
 
         // Auto-pause and immediate flush before system sleep; rollover check on wake
@@ -90,6 +99,7 @@ struct HyperfocusApp: App {
             queue: .main
         ) { [weak timer, weak stats, weak focus, weak blocker] _ in
             blocker?.deactivate()
+            if focus?.isMacOSFocusEnabled == true { bridge.deactivate() }
             guard let t = timer, let s = stats, let f = focus else { return }
             p.saveNow(PersistedState(
                 currentDay: t.currentDay,
