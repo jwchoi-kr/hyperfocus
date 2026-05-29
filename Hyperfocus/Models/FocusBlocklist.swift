@@ -14,9 +14,11 @@ struct BlockedSite: Codable, Identifiable, Equatable {
 struct FocusBlocklist: Codable, Equatable {
     var blockedApps: [BlockedApp]
     var blockedSites: [BlockedSite]
+    var isMacOSFocusEnabled: Bool
 
-    init(blockedApps: [BlockedApp] = [], blockedSites: [BlockedSite] = []) {
+    init(blockedApps: [BlockedApp] = [], blockedSites: [BlockedSite] = [], isMacOSFocusEnabled: Bool = false) {
         self.blockedApps = blockedApps
         self.blockedSites = blockedSites
+        self.isMacOSFocusEnabled = isMacOSFocusEnabled
     }
 }
