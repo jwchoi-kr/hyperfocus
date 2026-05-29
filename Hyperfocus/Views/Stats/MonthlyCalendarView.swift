@@ -139,7 +139,7 @@ struct MonthlyCalendarView: View {
                             isPastDay: cell.isPastDay,
                             isToday: cell.isToday,
                             onTap: {
-                                if cell.isPastDay, let day = cell.day {
+                                if let day = cell.day {
                                     onSelectDay(day)
                                 }
                             }
@@ -199,7 +199,7 @@ private struct CalendarDayCellView: View {
         .onHover { hovering in
             isHovered = hovering
             if hovering {
-                (isPastDay ? NSCursor.pointingHand : NSCursor.arrow).push()
+                ((isPastDay || isToday) ? NSCursor.pointingHand : NSCursor.arrow).push()
             } else {
                 NSCursor.pop()
             }

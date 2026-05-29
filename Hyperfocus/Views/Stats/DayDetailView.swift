@@ -5,10 +5,15 @@ struct DayDetailView: View {
     let onBack: () -> Void
 
     @Environment(StatisticsStore.self) private var statsStore
+    @Environment(TimerStore.self) private var timerStore
 
     // Look up the latest copy of this day so edits reflect immediately.
+    // Today's day lives in timerStore, not statsStore.
     private var liveDay: Day? {
-        statsStore.pastDays.first { $0.id == day.id }
+        if timerStore.currentDay.id == day.id {
+            return timerStore.currentDay
+        }
+        return statsStore.pastDays.first { $0.id == day.id }
     }
 
     var body: some View {

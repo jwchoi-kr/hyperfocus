@@ -31,16 +31,17 @@ struct FocusScreen: View {
             VStack(spacing: 0) {
                 PopoverNavBar(title: "Focus", backLabel: "Timer", onBack: onBack)
                 Divider()
-                VStack(alignment: .leading, spacing: 20) {
-                    statusBadge
-                    macOSFocusSection
-                    Divider()
-                    appsSection
-                    Divider()
-                    sitesSection
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 20) {
+                        statusBadge
+                        macOSFocusSection
+                        Divider()
+                        appsSection
+                        Divider()
+                        sitesSection
+                    }
+                    .padding()
                 }
-                .padding()
-                Spacer()
             }
         }
     }
@@ -112,8 +113,19 @@ struct FocusScreen: View {
 
     private var sitesSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Blocked Sites")
-                .font(.headline)
+            HStack {
+                Text("Blocked Sites")
+                    .font(.headline)
+                Spacer()
+                Button {
+                    isAddingSite = true
+                    isSiteFieldFocused = true
+                } label: {
+                    Image(systemName: "plus")
+                }
+                .buttonStyle(.plain)
+                .disabled(isBlocking || isAddingSite)
+            }
 
             if focusStore.blockedSites.isEmpty && !isAddingSite {
                 Text("None")
@@ -144,7 +156,7 @@ struct FocusScreen: View {
 
             if isAddingSite {
                 HStack {
-                    TextField("linkedin.com", text: $newSiteDomain)
+                    TextField("youtube.com", text: $newSiteDomain)
                         .textFieldStyle(.roundedBorder)
                         .focused($isSiteFieldFocused)
                         .onSubmit { commitNewSite() }
@@ -161,18 +173,6 @@ struct FocusScreen: View {
                     .foregroundStyle(.secondary)
                     .font(.subheadline)
                 }
-            }
-
-            if !isBlocking {
-                Button {
-                    isAddingSite = true
-                    isSiteFieldFocused = true
-                } label: {
-                    Label("Add Site", systemImage: "plus")
-                        .font(.subheadline)
-                }
-                .buttonStyle(.plain)
-                .disabled(isAddingSite)
             }
         }
     }
