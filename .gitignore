@@ -26,3 +26,6 @@ fastlane/test_output
 *.swp
 *~
 .history
+
+# Superpowers
+.superpowers/
